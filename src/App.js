@@ -7,17 +7,30 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { fetchPlaces } from "./services/placesService";
 import { fetchForecast } from "./services/forecastService";
 
+const getTomorrowAt = (hour) => {
+  const date = new Date();
+  date.setDate(date.getDate() + 1); // Move to tomorrow
+  date.setHours(hour, 0, 0, 0); // Set to desired
+  return date;
+};
+
 const WeatherDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [places, setPlaces] = useState([]);
   const [forecastData, setForecastData] = useState([]);
-  const [startDateTime, setStartDateTime] = useState(new Date());
-  const [endDateTime, setEndDateTime] = useState(new Date());
+  const [startDateTime, setStartDateTime] = useState(getTomorrowAt(8));
+  const [endDateTime, setEndDateTime] = useState(getTomorrowAt(17));
 
   const handleSearch = async () => {
     if (searchTerm.trim() !== "") {
       const results = await fetchPlaces(searchTerm);
       setPlaces(results);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
     }
   };
 
@@ -45,7 +58,15 @@ const WeatherDashboard = () => {
 
         <Paper sx={{ p: 2, mb: 3 }}>
           <Box display="flex" alignItems="center" gap={1}>
-            <TextField fullWidth placeholder="Search places" variant="outlined" size="small" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <TextField
+              fullWidth
+              placeholder="Search places"
+              variant="outlined"
+              size="small"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
             <IconButton color="primary" onClick={handleSearch}>
               <SearchIcon />
             </IconButton>
