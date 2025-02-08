@@ -4,18 +4,13 @@ import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { DatePicker, TimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import { fetchPlaces } from "./services/placesService";
 
 const WeatherDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [places, setPlaces] = useState([]);
   const [startDateTime, setStartDateTime] = useState(new Date());
   const [endDateTime, setEndDateTime] = useState(new Date());
-
-  const places = [
-    "Rogla",
-    "Krvavec",
-    "Golte",
-    "Kranjska gora",
-  ];
 
   const forecastData = [
     { location: "Zagreb", minTemp: 0, maxTemp: 6, precipProb: 0, totalPrecip: 0, cloudCover: 70, windSpeed: 5, windGusts: 9 },
@@ -23,6 +18,13 @@ const WeatherDashboard = () => {
     { location: "Victoria", minTemp: 27, maxTemp: 27, precipProb: 11, totalPrecip: 8, cloudCover: 70, windSpeed: 1, windGusts: 3 },
     { location: "New York", minTemp: 20, maxTemp: 29, precipProb: 0, totalPrecip: 0, cloudCover: 0, windSpeed: 3, windGusts: 6 },
   ];
+
+  const handleSearch = async () => {
+    if (searchTerm.trim() !== "") {
+      const results = await fetchPlaces(searchTerm);
+      setPlaces(results);
+    }
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -40,14 +42,14 @@ const WeatherDashboard = () => {
         <Paper sx={{ p: 2, mb: 3 }}>
           <Box display="flex" alignItems="center" gap={1}>
             <TextField fullWidth placeholder="Search places" variant="outlined" size="small" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-            <IconButton color="primary">
+            <IconButton color="primary" onClick={handleSearch}>
               <SearchIcon />
             </IconButton>
           </Box>
           <Box maxHeight={160} overflow="auto" mt={2}>
             {places.map((place) => (
-              <Box key={place} sx={{ p: 1, cursor: "pointer", "&:hover": { backgroundColor: "#f0f0f0" } }}>
-                {place}
+              <Box key={place.name} sx={{ p: 1, cursor: "pointer", "&:hover": { backgroundColor: "#f0f0f0" } }}>
+                {place.name}
               </Box>
             ))}
           </Box>
