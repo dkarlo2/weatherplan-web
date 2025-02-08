@@ -5,25 +5,29 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { DatePicker, TimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { fetchPlaces } from "./services/placesService";
+import { fetchForecast } from "./services/forecastService";
 
 const WeatherDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [places, setPlaces] = useState([]);
+  const [forecastData, setForecastData] = useState([]);
   const [startDateTime, setStartDateTime] = useState(new Date());
   const [endDateTime, setEndDateTime] = useState(new Date());
-
-  const forecastData = [
-    { location: "Zagreb", minTemp: 0, maxTemp: 6, precipProb: 0, totalPrecip: 0, cloudCover: 70, windSpeed: 5, windGusts: 9 },
-    { location: "Rijeka", minTemp: 4, maxTemp: 10, precipProb: 30, totalPrecip: 5, cloudCover: 98, windSpeed: 6, windGusts: 12 },
-    { location: "Victoria", minTemp: 27, maxTemp: 27, precipProb: 11, totalPrecip: 8, cloudCover: 70, windSpeed: 1, windGusts: 3 },
-    { location: "New York", minTemp: 20, maxTemp: 29, precipProb: 0, totalPrecip: 0, cloudCover: 0, windSpeed: 3, windGusts: 6 },
-  ];
 
   const handleSearch = async () => {
     if (searchTerm.trim() !== "") {
       const results = await fetchPlaces(searchTerm);
       setPlaces(results);
     }
+  };
+
+  const handleAddPlace = async (place) => {
+    const forecast = await fetchForecast(place.latitude, place.longitude, startDateTime, endDateTime);
+    setForecastData((prev) => [...prev, { ...forecast, location: place.name }]);
+  };
+
+  const handleRemovePlace = (location) => {
+    setForecastData((prev) => prev.filter((data) => data.location !== location));
   };
 
   return (
@@ -48,7 +52,7 @@ const WeatherDashboard = () => {
           </Box>
           <Box maxHeight={160} overflow="auto" mt={2}>
             {places.map((place) => (
-              <Box key={place.name} sx={{ p: 1, cursor: "pointer", "&:hover": { backgroundColor: "#f0f0f0" } }}>
+              <Box key={place.name} sx={{ p: 1, cursor: "pointer", "&:hover": { backgroundColor: "#f0f0f0" } }} onClick={() => handleAddPlace(place)}>
                 {place.name}
               </Box>
             ))}
@@ -84,7 +88,7 @@ const WeatherDashboard = () => {
                     <TableCell>{data.windSpeed}</TableCell>
                     <TableCell>{data.windGusts}</TableCell>
                     <TableCell>
-                      <IconButton color="error">
+                      <IconButton color="error" onClick={() => handleRemovePlace(data.location)}>
                         <RemoveIcon />
                       </IconButton>
                     </TableCell>
