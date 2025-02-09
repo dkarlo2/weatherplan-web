@@ -25,7 +25,7 @@ const loadStoredPeriod = () => {
   return { startDateTime: defaultStartDateTime, endDateTime: defaultEndDateTime };
 };
 
-const getTemperatureColor = (temp) => {
+const getTemperatureGradient = (minTemp, maxTemp) => {
   const colors = [
     { value: -30, color: "#00008b" },  // Dark Blue (Very Cold)
     { value: -10, color: "#1e90ff" },  // Dodger Blue
@@ -38,16 +38,45 @@ const getTemperatureColor = (temp) => {
     { value: 40, color: "#4b0000" }    // Deep Red (Extreme Heat)
   ];
 
-  // Find the closest two colors for interpolation
-  for (let i = 0; i < colors.length - 1; i++) {
-    if (temp >= colors[i].value && temp <= colors[i + 1].value) {
-      const ratio = (temp - colors[i].value) / (colors[i + 1].value - colors[i].value);
-      return interpolateColor(colors[i].color, colors[i + 1].color, ratio);
-    }
+  const min = Math.max(minTemp, -30);
+  const max = Math.min(maxTemp, 40);
+
+  let gradientColors = [];
+
+  // Include interpolated start color
+  gradientColors.push({ value: min, color: getInterpolatedColor(colors, min) });
+
+  // Add all stops in between
+  for (const stop of colors) {
+      if (stop.value > min && stop.value < max) {
+        gradientColors.push(stop);
+      }
   }
 
-  return temp < -30 ? colors[0].color : colors[colors.length - 1].color; // Out-of-range cases
+  // Include interpolated end color
+  gradientColors.push({ value: max, color: getInterpolatedColor(colors, max) });
+
+  // Convert to gradient CSS format
+  const gradientString = gradientColors.map(({ value, color }) => {
+      const percentage = ((value - min) / (max - min)) * 100;
+      return `${color} ${percentage.toFixed(2)}%`;
+  }).join(", ");
+
+  return `linear-gradient(to right, ${gradientString})`;
 };
+
+function getInterpolatedColor(colors, value) {
+  for (let i = 0; i < colors.length - 1; i++) {
+      const start = colors[i];
+      const end = colors[i + 1];
+
+      if (value >= start.value && value <= end.value) {
+          const ratio = (value - start.value) / (end.value - start.value);
+          return interpolateColor(start.color, end.color, ratio);
+      }
+  }
+  return colors[colors.length - 1].color; // Default fallback
+}
 
 // Function to interpolate between two colors
 const interpolateColor = (color1, color2, ratio) => {
@@ -266,25 +295,25 @@ const WeatherDashboard = () => {
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
-                <TableRow>
+                <TableRow sx={{ '& td, & th': { borderBottom: '2px solid' } }}>
                   <TableCell>Location</TableCell>
-                  <TableCell>Min Temp (°C)</TableCell>
-                  <TableCell>Max Temp (°C)</TableCell>
-                  <TableCell>Total Precip (mm)</TableCell>
-                  <TableCell>Wind Speed (gusts) (m/s)</TableCell>
-                  <TableCell>Sunshine (h)</TableCell>
+                  <TableCell align="center">Min Temp (°C)</TableCell>
+                  <TableCell align="center">Max Temp (°C)</TableCell>
+                  <TableCell align="center">Total Precip (mm)</TableCell>
+                  <TableCell align="center">Wind Speed (gusts) (m/s)</TableCell>
+                  <TableCell align="center">Sunshine (h)</TableCell>
                   <TableCell></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {forecastData.map((data) => (
-                  <TableRow key={data.location}>
-                    <TableCell>{data.location}</TableCell>
-                    <TableCell sx={{backgroundColor: getTemperatureColor(data.minTemp)}}>{data.minTemp}</TableCell>
-                    <TableCell sx={{backgroundColor: getTemperatureColor(data.maxTemp)}}>{data.maxTemp}</TableCell>
-                    <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}}>{data.totalPrecip} ({data.precipProb}%)</TableCell>
-                    <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}}>{data.windSpeed} ({data.windGusts})</TableCell>
-                    <TableCell sx={{background: getSunshineColor(data.sunshine)}}>{data.sunshine}</TableCell>
+                  <TableRow key={data.location} sx={{ '& td, & th': { borderBottom: '2px solid' } }}>
+                    <TableCell sx={{fontWeight: 700}}>{data.location}</TableCell>
+                    <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
+                    <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>
+                    <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}} align="center">{data.totalPrecip} ({data.precipProb}%)</TableCell>
+                    <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}} align="center">{data.windSpeed} ({data.windGusts})</TableCell>
+                    <TableCell sx={{background: getSunshineColor(data.sunshine)}} align="center">{data.sunshine}</TableCell>
                     <TableCell>
                       <IconButton color="error" onClick={() => handleRemovePlace(data.location)}>
                         <RemoveIcon />
