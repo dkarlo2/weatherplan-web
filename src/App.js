@@ -25,6 +25,56 @@ const loadStoredPeriod = () => {
   return { startDateTime: defaultStartDateTime, endDateTime: defaultEndDateTime };
 };
 
+const getTemperatureColor = (temp) => {
+  const colors = [
+    { value: -30, color: "#00008b" },  // Dark Blue (Very Cold)
+    { value: -10, color: "#1e90ff" },  // Dodger Blue
+    { value: 0, color: "#87ceeb" },    // Sky Blue
+    { value: 10, color: "#ffff99" },   // Light Yellow
+    { value: 15, color: "#ffd700" },   // Gold
+    { value: 20, color: "#ffa500" },   // Orange
+    { value: 25, color: "#ff4500" },   // Red-Orange
+    { value: 35, color: "#8b0000" },   // Dark Red
+    { value: 40, color: "#4b0000" }    // Deep Red (Extreme Heat)
+  ];
+
+  // Find the closest two colors for interpolation
+  for (let i = 0; i < colors.length - 1; i++) {
+    if (temp >= colors[i].value && temp <= colors[i + 1].value) {
+      const ratio = (temp - colors[i].value) / (colors[i + 1].value - colors[i].value);
+      return interpolateColor(colors[i].color, colors[i + 1].color, ratio);
+    }
+  }
+
+  return temp < -30 ? colors[0].color : colors[colors.length - 1].color; // Out-of-range cases
+};
+
+// Function to interpolate between two colors
+const interpolateColor = (color1, color2, ratio) => {
+  const hexToRgb = (hex) =>
+    hex.match(/\w\w/g).map((x) => parseInt(x, 16));
+
+  const rgbToHex = (r, g, b) =>
+    `#${[r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
+
+  const [r1, g1, b1] = hexToRgb(color1);
+  const [r2, g2, b2] = hexToRgb(color2);
+
+  const r = Math.round(r1 + (r2 - r1) * ratio);
+  const g = Math.round(g1 + (g2 - g1) * ratio);
+  const b = Math.round(b1 + (b2 - b1) * ratio);
+
+  return rgbToHex(r, g, b);
+};
+
+const getPrecipitationGradient = (value) => {
+  const minPrecip = 0;
+  const maxPrecip = 100;
+  const percentage = (Math.max(minPrecip, Math.min(maxPrecip, value)) - minPrecip) / (maxPrecip - minPrecip) * 100;
+  const precipColor = `color-mix(in hsl, cyan ${100 - percentage}%, blue ${percentage}%)`;
+  return `linear-gradient(to top,${precipColor} 0%, transparent ${percentage}%)`;
+};
+
 const WeatherDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [places, setPlaces] = useState([]);
@@ -177,7 +227,6 @@ const WeatherDashboard = () => {
                   <TableCell>Location</TableCell>
                   <TableCell>Min Temp (°C)</TableCell>
                   <TableCell>Max Temp (°C)</TableCell>
-                  <TableCell>Precip Prob (%)</TableCell>
                   <TableCell>Total Precip (mm)</TableCell>
                   <TableCell>Wind Speed (m/s)</TableCell>
                   <TableCell>Wind Gusts (m/s)</TableCell>
@@ -189,10 +238,9 @@ const WeatherDashboard = () => {
                 {forecastData.map((data) => (
                   <TableRow key={data.location}>
                     <TableCell>{data.location}</TableCell>
-                    <TableCell>{data.minTemp}</TableCell>
-                    <TableCell>{data.maxTemp}</TableCell>
-                    <TableCell>{data.precipProb}</TableCell>
-                    <TableCell>{data.totalPrecip}</TableCell>
+                    <TableCell sx={{backgroundColor: getTemperatureColor(data.minTemp)}}>{data.minTemp}</TableCell>
+                    <TableCell sx={{backgroundColor: getTemperatureColor(data.maxTemp)}}>{data.maxTemp}</TableCell>
+                    <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}}>{data.totalPrecip} ({data.precipProb}%)</TableCell>
                     <TableCell>{data.windSpeed}</TableCell>
                     <TableCell>{data.windGusts}</TableCell>
                     <TableCell>{data.sunshine}</TableCell>
