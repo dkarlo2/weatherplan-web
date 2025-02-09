@@ -127,14 +127,9 @@ const WeatherDashboard = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
-          <Typography variant="h6">Select Date and Time</Typography>
-          <Box display="flex" gap={2} mt={1}>
-            <DatePicker label="Start Date" value={startDateTime} onChange={handleStartDateTimeChange} disablePast />
-            <TimePicker label="Start Hour" ampm={false} views={['hours']} value={startDateTime} onChange={handleStartDateTimeChange} />
-            <DatePicker label="End Date" value={endDateTime} onChange={handleEndDateTimeChange} disablePast />
-            <TimePicker label="End Hour" ampm={false} views={['hours']} value={endDateTime} onChange={handleEndDateTimeChange} />
-          </Box>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6">WeatherPlan</Typography>
+          <Box component="img" src="/logo.png" sx={{width: 50, height: 50}}></Box>
         </Box>
 
         <Paper sx={{ p: 2, mb: 3 }}>
@@ -161,10 +156,19 @@ const WeatherDashboard = () => {
           </Box>
         </Paper>
 
+        <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
+          <Box display="flex" gap={2} mt={1}>
+            <DatePicker label="Start Date" value={startDateTime} onChange={handleStartDateTimeChange} disablePast />
+            <TimePicker label="Start Hour" ampm={false} views={['hours']} value={startDateTime} onChange={handleStartDateTimeChange} />
+            <DatePicker label="End Date" value={endDateTime} onChange={handleEndDateTimeChange} disablePast />
+            <TimePicker label="End Hour" ampm={false} views={['hours']} value={endDateTime} onChange={handleEndDateTimeChange} />
+          </Box>
+        </Box>
+
         <Paper sx={{ p: 2 }}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">Forecast</Typography>
-            <Button variant="contained" color="error" onClick={handleClearForecast}>Clear All</Button>
+            <Button variant="outlined" color="error" size="small" onClick={handleClearForecast}>Clear All</Button>
           </Box>
           <TableContainer component={Paper}>
             <Table size="small">
