@@ -75,6 +75,50 @@ const getPrecipitationGradient = (value) => {
   return `linear-gradient(to top,${precipColor} 0%, transparent ${percentage}%)`;
 };
 
+const getWindColor = (speed, gust) => {
+  const colors = [ // white and then 4 shades of red
+    { value: 0, color: "#ffffff" },
+    { value: 25, color: "#ffcccc" },
+    { value: 50, color: "#ff9999" },
+    { value: 75, color: "#ff3333" },
+    { value: 100, color: "#ff0000" }
+  ];
+  const minSpeed = 0;
+  const maxSpeed = 30;
+  const maxGust = 50;
+  const percentage = Math.max(
+    (Math.max(minSpeed, Math.min(maxSpeed, speed)) - minSpeed) / (maxSpeed - minSpeed),
+    (Math.max(minSpeed, Math.min(maxGust, gust)) - minSpeed) / (maxGust - minSpeed),
+  ) * 100;
+  // choose the closest shade (without interpolation)
+  for (let i = 0; i < colors.length - 1; i++) {
+    if (percentage < (colors[i].value + colors[i + 1].value) / 2) {
+      return colors[i].color;
+    }
+  }
+  return colors[colors.length - 1].color;
+};
+
+const getSunshineColor = (hours) => {
+  const colors = [ // white and 4 shades of yellow
+    { value: 0, color: "#ffffff" },
+    { value: 25, color: "#fff5bb" },
+    { value: 50, color: "#ffea77" },
+    { value: 75, color: "#ffdf33" },
+    { value: 100, color: "#ffd800" }
+  ];
+  const minHours = 0;
+  const maxHours = 12;
+  const percentage = (Math.max(minHours, Math.min(maxHours, hours)) - minHours) / (maxHours - minHours) * 100;
+  // choose the closest shade (without interpolation)
+  for (let i = 0; i < colors.length - 1; i++) {
+    if (percentage < (colors[i].value + colors[i + 1].value) / 2) {
+      return colors[i].color;
+    }
+  }
+  return colors[colors.length - 1].color;
+};
+
 const WeatherDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [places, setPlaces] = useState([]);
@@ -218,7 +262,6 @@ const WeatherDashboard = () => {
         <Paper sx={{ p: 2 }}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6" color="primary">Forecast</Typography>
-            <Button variant="contained" color="secondary" size="small" onClick={handleClearForecast}>Clear All</Button>
           </Box>
           <TableContainer component={Paper}>
             <Table size="small">
@@ -228,8 +271,7 @@ const WeatherDashboard = () => {
                   <TableCell>Min Temp (°C)</TableCell>
                   <TableCell>Max Temp (°C)</TableCell>
                   <TableCell>Total Precip (mm)</TableCell>
-                  <TableCell>Wind Speed (m/s)</TableCell>
-                  <TableCell>Wind Gusts (m/s)</TableCell>
+                  <TableCell>Wind Speed (gusts) (m/s)</TableCell>
                   <TableCell>Sunshine (h)</TableCell>
                   <TableCell></TableCell>
                 </TableRow>
@@ -241,11 +283,10 @@ const WeatherDashboard = () => {
                     <TableCell sx={{backgroundColor: getTemperatureColor(data.minTemp)}}>{data.minTemp}</TableCell>
                     <TableCell sx={{backgroundColor: getTemperatureColor(data.maxTemp)}}>{data.maxTemp}</TableCell>
                     <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}}>{data.totalPrecip} ({data.precipProb}%)</TableCell>
-                    <TableCell>{data.windSpeed}</TableCell>
-                    <TableCell>{data.windGusts}</TableCell>
-                    <TableCell>{data.sunshine}</TableCell>
+                    <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}}>{data.windSpeed} ({data.windGusts})</TableCell>
+                    <TableCell sx={{background: getSunshineColor(data.sunshine)}}>{data.sunshine}</TableCell>
                     <TableCell>
-                      <IconButton color="secondary" onClick={() => handleRemovePlace(data.location)}>
+                      <IconButton color="error" onClick={() => handleRemovePlace(data.location)}>
                         <RemoveIcon />
                       </IconButton>
                     </TableCell>
