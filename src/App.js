@@ -41,6 +41,10 @@ const getTemperatureGradient = (minTemp, maxTemp) => {
   const min = Math.max(minTemp, -30);
   const max = Math.min(maxTemp, 40);
 
+  if (min == max) {
+    return getInterpolatedColor(colors, min);
+  }
+
   let gradientColors = [];
 
   // Include interpolated start color
@@ -246,7 +250,7 @@ const WeatherDashboard = () => {
     setForecastData([]);
   };
 
-  // TODO use DateTimeRangePicker
+  // TODO select coming days (up to 10 days in future) instead of date-time range. show per day forecast in the table (each row one day). allow setting time range for each day?
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Container maxWidth="md" sx={{ py: 4 }}>
