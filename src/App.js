@@ -128,7 +128,7 @@ const WeatherDashboard = () => {
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6">WeatherPlan</Typography>
+          <Box component="img" src="/title.png" sx={{width: 300}}></Box>
           <Box component="img" src="/logo.png" sx={{width: 50, height: 50}}></Box>
         </Box>
 
@@ -167,7 +167,7 @@ const WeatherDashboard = () => {
 
         <Paper sx={{ p: 2 }}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">Forecast</Typography>
+            <Typography variant="h6" color="primary">Forecast</Typography>
             <Button variant="outlined" color="error" size="small" onClick={handleClearForecast}>Clear All</Button>
           </Box>
           <TableContainer component={Paper}>
