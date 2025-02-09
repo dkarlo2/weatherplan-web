@@ -168,7 +168,7 @@ const WeatherDashboard = () => {
         <Paper sx={{ p: 2 }}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6" color="primary">Forecast</Typography>
-            <Button variant="outlined" color="error" size="small" onClick={handleClearForecast}>Clear All</Button>
+            <Button variant="contained" color="secondary" size="small" onClick={handleClearForecast}>Clear All</Button>
           </Box>
           <TableContainer component={Paper}>
             <Table size="small">
@@ -197,7 +197,7 @@ const WeatherDashboard = () => {
                     <TableCell>{data.windGusts}</TableCell>
                     <TableCell>{data.sunshine}</TableCell>
                     <TableCell>
-                      <IconButton color="error" onClick={() => handleRemovePlace(data.location)}>
+                      <IconButton color="secondary" onClick={() => handleRemovePlace(data.location)}>
                         <RemoveIcon />
                       </IconButton>
                     </TableCell>
