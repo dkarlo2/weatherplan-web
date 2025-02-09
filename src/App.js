@@ -1,5 +1,5 @@
 import React, { useState, useEffect, use } from "react";
-import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Button, Snackbar } from "@mui/material";
+import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Button, Snackbar, Tooltip } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { DatePicker, TimePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -382,19 +382,19 @@ const WeatherDashboard = () => {
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ '& td, & th': { borderBottom: '2px solid' } }}>
+                <TableRow>
                   <TableCell>Location</TableCell>
-                  <TableCell align="center">Min Temp (°C)</TableCell>
-                  <TableCell align="center">Max Temp (°C)</TableCell>
-                  <TableCell align="center">Total Precip (mm)</TableCell>
-                  <TableCell align="center">Wind Speed (gusts) (m/s)</TableCell>
-                  <TableCell align="center">Sunshine (h)</TableCell>
+                  <TableCell align="center"><Tooltip title="Min Temp (°C)" placement="top">Low</Tooltip></TableCell>
+                  <TableCell align="center"><Tooltip title="Max Temp (°C)" placement="top">High</Tooltip></TableCell>
+                  <TableCell align="center"><Tooltip title="Total Precipitation (mm)" placement="top">Rain</Tooltip></TableCell>
+                  <TableCell align="center"><Tooltip title="Wind speed (gusts) (m/s)" placement="top">Wind</Tooltip></TableCell>
+                  <TableCell align="center"><Tooltip title="Sunshine (h)" placement="top">Sun</Tooltip></TableCell>
                   <TableCell></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {forecastData.map((data) => (
-                  <TableRow key={data.location} sx={{ '& td, & th': { borderBottom: '2px solid' } }}>
+                {forecastData.map((data, i) => (
+                  <TableRow key={data.location} sx={i < forecastData.length - 1 ? { '& td, & th': { borderBottom: '1px solid #186eba' } } : {}}>
                     <TableCell sx={{fontWeight: 700}}>{data.location}</TableCell>
                     <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
                     <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>
@@ -402,7 +402,7 @@ const WeatherDashboard = () => {
                     <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}} align="center">{data.windSpeed} ({data.windGusts})</TableCell>
                     <TableCell sx={{background: getSunshineColor(data.sunshine)}} align="center">{data.sunshine}</TableCell>
                     <TableCell>
-                      <IconButton color="error" onClick={() => handleRemovePlace(data.location)}>
+                      <IconButton size="small" color="error" onClick={() => handleRemovePlace(data.location)}>
                         <RemoveIcon />
                       </IconButton>
                     </TableCell>
