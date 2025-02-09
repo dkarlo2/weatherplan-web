@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Button, Snackbar } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -152,12 +152,52 @@ const getSunshineColor = (hours) => {
   return colors[colors.length - 1].color;
 };
 
+function formatDate(date) {
+  const options = { month: "short", day: "numeric" };
+  const formatter = new Intl.DateTimeFormat("en-US", options);
+  const [{ value: month }, , { value: day }] = formatter.formatToParts(date);
+
+  return `${month}, ${getOrdinalSuffix(day)}`;
+}
+
+function getOrdinalSuffix(day) {
+  if (day >= 11 && day <= 13) return `${day}th`;
+  switch (day % 10) {
+    case 1: return `${day}st`;
+    case 2: return `${day}nd`;
+    case 3: return `${day}rd`;
+    default: return `${day}th`;
+  }
+}
+
+const createForecastDays = () => {
+  const storageForecastDays = JSON.parse(localStorage.getItem("forecastDays")) || [];
+  const storageDates = storageForecastDays.filter((d) => d.selected).map((d) => d.date);
+  const nDays = 10;
+  const days = [];
+  for (let i = 0; i < nDays; i++) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + i);
+    const dayTitle = i == 0 ? 'Today' : i == 1 ? 'Tomorrow' : date.toLocaleDateString("en-US", { weekday: "long" });
+    days.push({
+      key: i,
+      title: dayTitle,
+      subtitle: formatDate(date),
+      date: date,
+      selected: storageDates.length > 0 ? storageDates.includes(date.toISOString()) : i == 0
+    });
+  }
+  return days;
+};
+
 const WeatherDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [places, setPlaces] = useState([]);
   const [forecastData, setForecastData] = useState(JSON.parse(localStorage.getItem("forecastData")) || []);
   const [startDateTime, setStartDateTime] = useState(loadStoredPeriod().startDateTime);
   const [endDateTime, setEndDateTime] = useState(loadStoredPeriod().endDateTime);
+  const [forecastDays, setForecastDays] = useState(createForecastDays());
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -168,6 +208,10 @@ const WeatherDashboard = () => {
     localStorage.setItem("startDateTime", startDateTime.toISOString());
     localStorage.setItem("endDateTime", endDateTime.toISOString());
   }, [startDateTime, endDateTime]);
+
+  useEffect(() => {
+    localStorage.setItem("forecastDays", JSON.stringify(forecastDays));
+  }, [forecastDays]);
 
   useEffect(() => {
     forecastData.forEach(async (data) => {
@@ -246,8 +290,16 @@ const WeatherDashboard = () => {
     setForecastData((prev) => prev.filter((data) => data.location !== location));
   };
 
-  const handleClearForecast = () => {
-    setForecastData([]);
+  const handleSelectDay = (day) => {
+    setForecastDays((prev) => {
+      if (day.selected) {
+        return prev.map((d) => ({ ...d, selected: d.key === day.key }));
+      }
+      prev = prev.map((d) => ({ ...d, selected: d.key === day.key ? !d.selected : d.selected }));
+      const minSelectedDate = prev.reduce((min, d) => (d.selected && (!min || d.date < min) ? d.date : min), null);
+      const maxSelectedDate = prev.reduce((max, d) => (d.selected && (!max || d.date > max) ? d.date : max), null);
+      return prev.map((d) => ({ ...d, selected: d.date >= minSelectedDate && d.date <= maxSelectedDate }));
+    });
   };
 
   // TODO select coming days (up to 10 days in future) instead of date-time range. show per day forecast in the table (each row one day). allow setting time range for each day?
@@ -291,6 +343,37 @@ const WeatherDashboard = () => {
             <TimePicker label="End Hour" ampm={false} views={['hours']} value={endDateTime} onChange={handleEndDateTimeChange} />
           </Box>
         </Box>
+
+        <Paper sx={{ p: 0, mb: 3 }}>
+          <TableContainer component={Paper} sx={{ width: "100%", overflow: "hidden", margin: 0 }}>
+            <Table size="small" sx={{ width: "100%", tableLayout: "fixed" }}>
+              <TableHead>
+                <TableRow>
+                  {forecastDays.map((day) => (
+                    <TableCell
+                      key={day.key}
+                      align="center"
+                      onClick={() => handleSelectDay(day)}
+                      sx={{
+                        cursor: "pointer", // Show pointer cursor
+                        backgroundColor: day.selected ? "#c9bb2b" : "transparent",
+                        "&:hover": { backgroundColor: "#c9bb2b" }, // Highlight on hover
+                        transition: "background-color 0.3s",
+                        wordWrap: "break-word",
+                        whiteSpace: "normal",
+                        padding: "1px",
+                        minWidth: "auto", // Prevent extra spacing
+                      }}
+                    >
+                      <Typography color="primary" fontSize="0.9rem">{day.title}</Typography>
+                      <Typography variant="caption" fontSize="0.75rem">{day.subtitle}</Typography>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+            </Table>
+          </TableContainer>
+        </Paper>
 
         <Paper sx={{ p: 2 }}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
