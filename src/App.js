@@ -175,9 +175,9 @@ const WeatherDashboard = () => {
                   <TableCell>Max Temp (°C)</TableCell>
                   <TableCell>Precip Prob (%)</TableCell>
                   <TableCell>Total Precip (mm)</TableCell>
-                  <TableCell>Cloud Cover (%)</TableCell>
                   <TableCell>Wind Speed (m/s)</TableCell>
                   <TableCell>Wind Gusts (m/s)</TableCell>
+                  <TableCell>Sunshine (h)</TableCell>
                   <TableCell></TableCell>
                 </TableRow>
               </TableHead>
@@ -189,9 +189,9 @@ const WeatherDashboard = () => {
                     <TableCell>{data.maxTemp}</TableCell>
                     <TableCell>{data.precipProb}</TableCell>
                     <TableCell>{data.totalPrecip}</TableCell>
-                    <TableCell>{data.cloudCover}</TableCell>
                     <TableCell>{data.windSpeed}</TableCell>
                     <TableCell>{data.windGusts}</TableCell>
+                    <TableCell>{data.sunshine}</TableCell>
                     <TableCell>
                       <IconButton color="error" onClick={() => handleRemovePlace(data.location)}>
                         <RemoveIcon />
