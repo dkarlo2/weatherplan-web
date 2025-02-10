@@ -84,7 +84,7 @@ const interpolateColor = (color1, color2, ratio) => {
 
 const getPrecipitationGradient = (value) => {
   const minPrecip = 0;
-  const maxPrecip = 100;
+  const maxPrecip = 30;
   const percentage = (Math.max(minPrecip, Math.min(maxPrecip, value)) - minPrecip) / (maxPrecip - minPrecip) * 100;
   const precipColor = `color-mix(in hsl, cyan ${100 - percentage}%, blue ${percentage}%)`;
   return `linear-gradient(to top,${precipColor} 0%, transparent ${percentage}%)`;
@@ -349,7 +349,7 @@ const WeatherDashboard = () => {
             <Table size="small">
               <TableHead>
                 <TableRow sx={{backgroundColor: '#eeeeee'}}>
-                  <TableCell sx={{color: '#7e761b'}}>Location</TableCell>
+                  <TableCell align="center" sx={{color: '#7e761b'}}>Location</TableCell>
                   <TableCell align="center" sx={{color: '#7e761b'}}>Date</TableCell>
                   <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Min Temp (°C)" placement="top">Low</Tooltip></TableCell>
                   <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Max Temp (°C)" placement="top">High</Tooltip></TableCell>
@@ -361,11 +361,10 @@ const WeatherDashboard = () => {
               </TableHead>
               <TableBody>
                 {forecastData.map((data, i) => (
-                  <TableRow key={`${data.place.name}-${data.day.key}`} sx={i < forecastData.length - 1 && forecastData[i+1].place.name !== data.place.name ? { '& td, & th': { borderBottom: '1px solid #186eba' } } : {'& td, & th': { borderBottom: 0 } }}>
-                    {i == 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell sx={{fontWeight: 700}} style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDays.filter((day) => day.selected).length}>{data.place.name}</TableCell>) : (<></>)}
+                  <TableRow key={`${data.place.name}-${data.day.key}`} sx={i < forecastData.length - 1 && forecastData[i+1].place.name !== data.place.name ? { '& td, & th': { borderBottom: '1px solid #186eba', p: 0.5 } } : {'& td, & th': { borderBottom: 0, p: 0.5 } }}>
+                    {i == 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" sx={{fontWeight: 700}} style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDays.filter((day) => day.selected).length}>{data.place.name}</TableCell>) : (<></>)}
                     <TableCell align="center">
-                      <Typography color="primary" fontSize="0.9rem">{data.day.title}</Typography>
-                      <Typography variant="caption" fontSize="0.75rem">{data.day.subtitle}</Typography>
+                      <Typography color="primary" fontSize="0.75rem">{data.day.title}</Typography>
                     </TableCell>
                     <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
                     <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>
