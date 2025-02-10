@@ -410,7 +410,7 @@ const WeatherDashboard = () => {
               <TableRow sx={{backgroundColor: '#eeeeee'}}>
                 <TableCell align="center" sx={{color: '#7e761b'}}>Location</TableCell>
                 <TableCell align="center" sx={{color: '#7e761b', minWidth: '5rem'}}><Tooltip title="Day (selected time interval)" placement="top">Day</Tooltip></TableCell>
-                <TableCell align="center" sx={{color: '#7e761b'}}>Weather</TableCell>
+                <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Median weather conditioons" placement="top">Weather</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Min Temp (°C)" placement="top">Low</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Max Temp (°C)" placement="top">High</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b', minWidth: '5rem'}}><Tooltip title="Total Precipitation (mm)" placement="top">Precipitation</Tooltip></TableCell>
