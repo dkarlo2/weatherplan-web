@@ -362,14 +362,17 @@ const WeatherDashboard = () => {
               <TableBody>
                 {forecastData.map((data, i) => (
                   <TableRow key={`${data.place.name}-${data.day.key}`} sx={i < forecastData.length - 1 && forecastData[i+1].place.name !== data.place.name ? { '& td, & th': { borderBottom: '1px solid #186eba' } } : {'& td, & th': { borderBottom: 0 } }}>
-                    {i == 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell sx={{fontWeight: 700}} style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={3}>{data.place.name}</TableCell>) : (<></>)}
-                    <TableCell align="center" sx={{color: '#186eba'}}>{data.day.subtitle}</TableCell>
+                    {i == 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell sx={{fontWeight: 700}} style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDays.filter((day) => day.selected).length}>{data.place.name}</TableCell>) : (<></>)}
+                    <TableCell align="center">
+                      <Typography color="primary" fontSize="0.9rem">{data.day.title}</Typography>
+                      <Typography variant="caption" fontSize="0.75rem">{data.day.subtitle}</Typography>
+                    </TableCell>
                     <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
                     <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>
                     <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}} align="center">{data.totalPrecip} ({data.precipProb}%)</TableCell>
                     <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}} align="center">{data.windSpeed} ({data.windGusts})</TableCell>
                     <TableCell sx={{background: getSunshineColor(data.sunshine)}} align="center">{data.sunshine}</TableCell>
-                    {i == 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={3}>
+                    {i == 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDays.filter((day) => day.selected).length}>
                       <IconButton size="small" color="error" onClick={() => handleRemovePlace(data)}>
                         <RemoveIcon />
                       </IconButton>
