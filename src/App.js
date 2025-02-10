@@ -360,7 +360,7 @@ const WeatherDashboard = () => {
             <TableHead>
               <TableRow sx={{backgroundColor: '#eeeeee'}}>
                 <TableCell align="center" sx={{color: '#7e761b'}}>Location</TableCell>
-                <TableCell align="center" sx={{color: '#7e761b', minWidth: '5rem'}}>Date</TableCell>
+                <TableCell align="center" sx={{color: '#7e761b', minWidth: '5rem'}}><Tooltip title="Day (selected time interval)" placement="top">Date</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Min Temp (°C)" placement="top">Low</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Max Temp (°C)" placement="top">High</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b', minWidth: '3rem'}}><Tooltip title="Total Precipitation (mm)" placement="top">Rain</Tooltip></TableCell>
@@ -398,7 +398,9 @@ const WeatherDashboard = () => {
                       background: getDateGradient(data.day.startHour, data.day.endHour),
                     }}
                   >
-                    <Typography color="primary" fontSize="0.75rem">{data.day.title}</Typography>
+                    <Typography color="primary" fontSize="0.75rem">
+                      {data.day.title} ({data.day.startHour}-{data.day.endHour})
+                    </Typography>
                   </TableCell>
                   <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
                   <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>
@@ -406,9 +408,11 @@ const WeatherDashboard = () => {
                   <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}} align="center">{data.windSpeed} ({data.windGusts})</TableCell>
                   <TableCell sx={{background: getSunshineColor(data.sunshine)}} align="center">{data.sunshine}</TableCell>
                   {i === 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" style={i < forecastData.length - forecastDataRowSpan  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDataRowSpan}>
-                    <IconButton size="small" color="error" onClick={() => handleRemovePlace(data)}>
-                      <RemoveIcon />
-                    </IconButton>
+                    <Tooltip title="Remove location" placement="top">
+                      <IconButton size="small" color="error" onClick={() => handleRemovePlace(data)}>
+                        <RemoveIcon />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>) : (<></>)}
                 </TableRow>
                 </>
