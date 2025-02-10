@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Snackbar, Tooltip } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { WiDaySunny, WiDayCloudyHigh, WiDayCloudy, WiCloud, WiFog, WiRainMix, WiSleet, WiRain, WiSnow, WiShowers, WiThunderstorm, WiNightClear, WiNightAltCloudyHigh, WiNightAltCloudy } from "weather-icons-react";
 import { fetchPlaces } from "./services/placesService";
 import { fetchForecast } from "./services/forecastService";
 import TimeSelectionPopup from "./TimeSelectionPopup";
@@ -131,6 +132,57 @@ const getSunshineColor = (hours) => {
     }
   }
   return colors[colors.length - 1].color;
+};
+
+const getWeatherIcon = (weatherCode, isDay, size) => {
+  // https://open-meteo.com/en/docs
+  switch (weatherCode) {
+    case 0:
+      return isDay ? (<WiDaySunny size={size} />) : (<WiNightClear size={size} />);
+    case 1:
+      return isDay ? (<WiDayCloudyHigh size={size} />) : (<WiNightAltCloudyHigh size={size} />);
+    case 2:
+      return isDay ? (<WiDayCloudy size={size} />) : (<WiNightAltCloudy size={size} />);
+    case 3:
+      return (<WiCloud size={size} />);
+    case 45:
+    case 48:
+      return (<WiFog size={size} />);
+    case 51:
+    case 53:
+    case 55:
+      return (<WiRainMix size={size} />);
+    case 56:
+    case 57:
+      return (<WiSleet size={size} />);
+    case 61:
+    case 63:
+    case 65:
+      return (<WiRain size={size} />);
+    case 66:
+    case 67:
+      return (<WiSleet size={size} />);
+    case 71:
+    case 73:
+    case 75:
+      return (<WiSnow size={size} />);
+    case 77:
+      return (<WiSnow size={size} />);
+    case 80:
+    case 81:
+    case 82:
+      return (<WiShowers size={size} />);
+    case 85:
+    case 86:
+      return (<WiSnow size={size} />);
+    case 95:
+      return (<WiThunderstorm size={size} />);
+    case 96:
+    case 99:
+      return (<WiThunderstorm size={size} />);
+    default:
+      return weatherCode;
+  }
 };
 
 const getDateGradient = (startHour, endHour) => {
@@ -360,10 +412,11 @@ const WeatherDashboard = () => {
             <TableHead>
               <TableRow sx={{backgroundColor: '#eeeeee'}}>
                 <TableCell align="center" sx={{color: '#7e761b'}}>Location</TableCell>
-                <TableCell align="center" sx={{color: '#7e761b', minWidth: '5rem'}}><Tooltip title="Day (selected time interval)" placement="top">Date</Tooltip></TableCell>
+                <TableCell align="center" sx={{color: '#7e761b', minWidth: '5rem'}}><Tooltip title="Day (selected time interval)" placement="top">Day</Tooltip></TableCell>
+                <TableCell align="center" sx={{color: '#7e761b'}}>Weather</TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Min Temp (°C)" placement="top">Low</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Max Temp (°C)" placement="top">High</Tooltip></TableCell>
-                <TableCell align="center" sx={{color: '#7e761b', minWidth: '3rem'}}><Tooltip title="Total Precipitation (mm)" placement="top">Rain</Tooltip></TableCell>
+                <TableCell align="center" sx={{color: '#7e761b', minWidth: '5rem'}}><Tooltip title="Total Precipitation (mm)" placement="top">Precipitation</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b', minWidth: '3rem'}}><Tooltip title="Wind speed (gusts) (m/s)" placement="top">Wind</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Sunshine (h)" placement="top">Sun</Tooltip></TableCell>
                 <TableCell></TableCell>
@@ -382,7 +435,7 @@ const WeatherDashboard = () => {
                   {i === 0 || forecastData[i-1].place.name !== data.place.name ? (
                     <TableCell
                       align="center"
-                      style={i < forecastData.length - forecastDataRowSpan  ? {borderBottom: '1px solid #186eba', backgroundColor: '#eeeeee' } : {backgroundColor: '#eeeeee'}}
+                      style={i < forecastData.length - forecastDataRowSpan  ? {borderBottom: '1px solid #186eba' } : {}}
                       rowSpan={forecastDataRowSpan}
                     >
                       {data.place.name}
@@ -409,6 +462,14 @@ const WeatherDashboard = () => {
                       }}
                     >
                     </Box>
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    style={{
+                      padding: 0
+                    }}
+                  >
+                    {getWeatherIcon(data.weatherCode, data.isDay, 25)}
                   </TableCell>
                   <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
                   <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Slider, Typography } from "@mui/material";
+import { Dialog, DialogContent, DialogActions, Button, Box, Slider, Typography } from "@mui/material";
 
 const TimeSelectionPopup = ({ open, onClose, onConfirm, day }) => {
   const [timeRange, setTimeRange] = useState([day.startHour, day.endHour]);
