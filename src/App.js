@@ -98,7 +98,7 @@ const getWindColor = (speed, gust) => {
     { value: 100, color: "#ff0000" }
   ];
   const minSpeed = 0;
-  const maxSpeed = 30;
+  const maxSpeed = 20;
   const maxGust = 50;
   const percentage = Math.max(
     (Math.max(minSpeed, Math.min(maxSpeed, speed)) - minSpeed) / (maxSpeed - minSpeed),
