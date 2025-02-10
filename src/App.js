@@ -136,7 +136,7 @@ const getSunshineColor = (hours) => {
 const getDateGradient = (startHour, endHour) => {
   const startPercentage = (startHour / 24) * 100;
   const endPercentage = (endHour / 24) * 100;
-  return `linear-gradient(to right, white 0%, white ${startPercentage}%, #c9bb2b ${startPercentage}%, #c9bb2b ${endPercentage}%, white ${endPercentage}%, white 100%)`;
+  return `linear-gradient(to right, white 0%, white ${startPercentage}%, #186eba ${startPercentage}%, #186eba ${endPercentage}%, white ${endPercentage}%, white 100%)`;
 }
 
 function formatDate(date) {
@@ -395,12 +395,20 @@ const WeatherDashboard = () => {
                     sx={{
                       cursor: "pointer", // Show pointer cursor
                       "&:hover": { backgroundColor: "#eeeeee" }, // Highlight on hover
-                      background: getDateGradient(data.day.startHour, data.day.endHour),
                     }}
                   >
                     <Typography color="primary" fontSize="0.75rem">
                       {data.day.title} ({data.day.startHour}-{data.day.endHour})
                     </Typography>
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        bottom: 0,
+                        background: getDateGradient(data.day.startHour, data.day.endHour),
+                        height: '0.3rem',
+                      }}
+                    >
+                    </Box>
                   </TableCell>
                   <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
                   <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>
