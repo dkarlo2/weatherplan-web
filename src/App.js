@@ -353,8 +353,8 @@ const WeatherDashboard = () => {
                   <TableCell align="center" sx={{color: '#7e761b'}}>Date</TableCell>
                   <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Min Temp (°C)" placement="top">Low</Tooltip></TableCell>
                   <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Max Temp (°C)" placement="top">High</Tooltip></TableCell>
-                  <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Total Precipitation (mm)" placement="top">Rain</Tooltip></TableCell>
-                  <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Wind speed (gusts) (m/s)" placement="top">Wind</Tooltip></TableCell>
+                  <TableCell align="center" sx={{color: '#7e761b', minWidth: '3rem'}}><Tooltip title="Total Precipitation (mm)" placement="top">Rain</Tooltip></TableCell>
+                  <TableCell align="center" sx={{color: '#7e761b', minWidth: '3rem'}}><Tooltip title="Wind speed (gusts) (m/s)" placement="top">Wind</Tooltip></TableCell>
                   <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Sunshine (h)" placement="top">Sun</Tooltip></TableCell>
                   <TableCell></TableCell>
                 </TableRow>
