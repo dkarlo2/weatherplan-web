@@ -1,5 +1,5 @@
-import React, { useState, useEffect, use } from "react";
-import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Button, Snackbar, Tooltip } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Snackbar, Tooltip } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { DatePicker, TimePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -41,7 +41,7 @@ const getTemperatureGradient = (minTemp, maxTemp) => {
   const min = Math.max(minTemp, -30);
   const max = Math.min(maxTemp, 40);
 
-  if (min == max) {
+  if (min === max) {
     return getInterpolatedColor(colors, min);
   }
 
@@ -179,13 +179,13 @@ const createForecastDays = () => {
     const date = new Date();
     date.setHours(0, 0, 0, 0);
     date.setDate(date.getDate() + i);
-    const dayTitle = i == 0 ? 'Today' : i == 1 ? 'Tomorrow' : date.toLocaleDateString("en-US", { weekday: "long" });
+    const dayTitle = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : date.toLocaleDateString("en-US", { weekday: "long" });
     days.push({
       key: i,
       title: dayTitle,
       subtitle: formatDate(date),
       date: date,
-      selected: storageDates.length > 0 ? storageDates.includes(date.toISOString()) : i == 0
+      selected: storageDates.length > 0 ? storageDates.includes(date.toISOString()) : i === 0
     });
   }
   return days;
@@ -303,6 +303,7 @@ const WeatherDashboard = () => {
   };
 
   // TODO select coming days (up to 10 days in future) instead of date-time range. show per day forecast in the table (each row one day). allow setting time range for each day?
+  // TODO add weather icon (e.g. sun, cloud, rain) to the forecast table
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Container maxWidth="md" sx={{ py: 4 }}>
