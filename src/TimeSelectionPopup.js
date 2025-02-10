@@ -5,14 +5,19 @@ const TimeSelectionPopup = ({ open, onClose, onConfirm, day }) => {
   const [timeRange, setTimeRange] = useState([day.startHour, day.endHour]);
 
   useEffect(() => {
-    setTimeRange([day.startHour, day.endHour]);
-  }, [day.startHour, day.endHour]);
+    if (open) {
+        setTimeRange([day.startHour, day.endHour]);
+    }
+  }, [day.startHour, day.endHour, open]);
 
   const handleSliderChange = (event, newValue) => {
     setTimeRange(newValue);
   };
 
   const handleConfirm = () => {
+    if (timeRange[0] >= timeRange[1]) {
+      return;
+    }
     onConfirm({ start: timeRange[0], end: timeRange[1] });
     onClose();
   };
