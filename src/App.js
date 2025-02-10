@@ -362,7 +362,7 @@ const WeatherDashboard = () => {
               <TableBody>
                 {forecastData.map((data, i) => (
                   <TableRow key={`${data.place.name}-${data.day.key}`} sx={i < forecastData.length - 1 && forecastData[i+1].place.name !== data.place.name ? { '& td, & th': { borderBottom: '1px solid #186eba', p: 0.5 } } : {'& td, & th': { borderBottom: 0, p: 0.5 } }}>
-                    {i == 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" sx={{fontWeight: 700}} style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDays.filter((day) => day.selected).length}>{data.place.name}</TableCell>) : (<></>)}
+                    {i === 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" sx={{fontWeight: 700}} style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDays.filter((day) => day.selected).length}>{data.place.name}</TableCell>) : (<></>)}
                     <TableCell align="center">
                       <Typography color="primary" fontSize="0.75rem">{data.day.title}</Typography>
                     </TableCell>
@@ -371,7 +371,7 @@ const WeatherDashboard = () => {
                     <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}} align="center">{data.totalPrecip} ({data.precipProb}%)</TableCell>
                     <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}} align="center">{data.windSpeed} ({data.windGusts})</TableCell>
                     <TableCell sx={{background: getSunshineColor(data.sunshine)}} align="center">{data.sunshine}</TableCell>
-                    {i == 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDays.filter((day) => day.selected).length}>
+                    {i === 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDays.filter((day) => day.selected).length}>
                       <IconButton size="small" color="error" onClick={() => handleRemovePlace(data)}>
                         <RemoveIcon />
                       </IconButton>
