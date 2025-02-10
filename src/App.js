@@ -2,28 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Snackbar, Tooltip } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { DatePicker, TimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { fetchPlaces } from "./services/placesService";
 import { fetchForecast } from "./services/forecastService";
-
-const getTomorrowAt = (hour) => {
-  const date = new Date();
-  date.setDate(date.getDate() + 1);
-  date.setHours(hour, 0, 0, 0);
-  return date;
-};
-
-const loadStoredPeriod = () => {
-  const defaultStartDateTime = getTomorrowAt(8);
-  const defaultEndDateTime = getTomorrowAt(17);
-  const parsedStartDate = new Date(localStorage.getItem("startDateTime") || defaultStartDateTime.toISOString());
-  const parsedEndDate = new Date(localStorage.getItem("endDateTime") || defaultEndDateTime.toISOString());
-  if (parsedStartDate > new Date() && parsedEndDate > new Date() && parsedEndDate > parsedStartDate) {
-    return { startDateTime: parsedStartDate, endDateTime: parsedEndDate };
-  }
-  return { startDateTime: defaultStartDateTime, endDateTime: defaultEndDateTime };
-};
 
 const getTemperatureGradient = (minTemp, maxTemp) => {
   const colors = [
@@ -170,9 +152,35 @@ function getOrdinalSuffix(day) {
   }
 }
 
-const createForecastDays = () => {
-  const storageForecastDays = JSON.parse(localStorage.getItem("forecastDays")) || [];
-  const storageDates = storageForecastDays.filter((d) => d.selected).map((d) => d.date);
+const placesSerVersion = 1;
+
+const storePlaces = (places) => {
+  localStorage.setItem("places", JSON.stringify({
+    version: placesSerVersion,
+    places: places,
+  }));
+};
+
+const loadPlaces = () => {
+  const data = JSON.parse(localStorage.getItem("places"));
+  if (data && data.version === placesSerVersion) {
+    return data.places;
+  }
+  return [];
+};
+
+const forecastDaysSerVersion = 1;
+
+const storeForecastDays = (forecastDays) => {
+  localStorage.setItem("forecastDays", JSON.stringify({
+    version: forecastDaysSerVersion,
+    forecastDays: forecastDays,
+  }));
+};
+
+const loadForecastDays = () => {
+  const data = JSON.parse(localStorage.getItem("forecastDays"));
+  const storageDates = data && data.version === forecastDaysSerVersion ? data.forecastDays.filter((d) => d.selected).map((d) => d.date) : [];
   const nDays = 10;
   const days = [];
   for (let i = 0; i < nDays; i++) {
@@ -193,74 +201,46 @@ const createForecastDays = () => {
 
 const WeatherDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [places, setPlaces] = useState([]);
-  const [forecastData, setForecastData] = useState(JSON.parse(localStorage.getItem("forecastData")) || []);
-  const [startDateTime, setStartDateTime] = useState(loadStoredPeriod().startDateTime);
-  const [endDateTime, setEndDateTime] = useState(loadStoredPeriod().endDateTime);
-  const [forecastDays, setForecastDays] = useState(createForecastDays());
+  const [searchPlaces, setSearchPlaces] = useState([]);
+  const [places, setPlaces] = useState(loadPlaces());
+  const [forecastData, setForecastData] = useState([]);
+  const [forecastDays, setForecastDays] = useState(loadForecastDays());
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    localStorage.setItem("forecastData", JSON.stringify(forecastData));
-  }, [forecastData]);
+    storePlaces(places);
+  }, [places]);
 
   useEffect(() => {
-    localStorage.setItem("startDateTime", startDateTime.toISOString());
-    localStorage.setItem("endDateTime", endDateTime.toISOString());
-  }, [startDateTime, endDateTime]);
-
-  useEffect(() => {
-    localStorage.setItem("forecastDays", JSON.stringify(forecastDays));
+    storeForecastDays(forecastDays);
   }, [forecastDays]);
 
   useEffect(() => {
-    forecastData.forEach(async (data) => {
-      try {
-        const updatedForecast = await fetchForecast(data.latitude, data.longitude, startDateTime, endDateTime);
-        setForecastData((prev) =>
-          prev.map((item) => (item.location === data.location ? { ...updatedForecast, location: data.location, latitude: data.latitude, longitude: data.longitude } : item))
-        );
-      } catch (error) {
-        setErrorMessage("Error loading forecast");
-      }
-    });
-  }, [startDateTime, endDateTime]);
-
-  const handleStartDateTimeChange = (newValue) => {
-    newValue.setMinutes(0);
-    if (newValue < new Date()) {
-      newValue = new Date();
-      newValue.setHours(newValue.getHours() + 1);
-      newValue.setMinutes(0);
-      if (newValue > endDateTime) {
-        setEndDateTime(newValue);
-      }
-    } else if (newValue > endDateTime) {
-      setEndDateTime(newValue);
-    }
-    setStartDateTime(newValue);
-  };
-
-  const handleEndDateTimeChange = (newValue) => {
-    newValue.setMinutes(0);
-    if (newValue < new Date()) {
-      newValue = new Date();
-      newValue.setHours(newValue.getHours() + 1);
-      newValue.setMinutes(0);
-      if (newValue < startDateTime) {
-        setStartDateTime(newValue);
-      }
-    } else if (newValue <= startDateTime) {
-      setStartDateTime(newValue);
-    }
-    setEndDateTime(newValue);
-  };
+    const fetchForecasts = async () => {
+      const forecastData = (await Promise.all(places.map(async (place) => await Promise.all(forecastDays.filter((day) => day.selected).map(async (day) => {
+        try {
+          const startDateTime = new Date(day.date);
+          startDateTime.setHours(0, 0, 0, 0);
+          const endDateTime = new Date(day.date);
+          endDateTime.setHours(23, 59, 59, 999);
+          const forecast = await fetchForecast(place.latitude, place.longitude, startDateTime, endDateTime);
+          return {...forecast, place: place, day: day};
+        } catch (error) {
+          console.log(error);
+          setErrorMessage("Error loading forecast");
+          return {};
+        }
+      }))))).flat();
+      setForecastData(forecastData);
+    };
+    fetchForecasts();
+  }, [places, forecastDays]);
 
   const handleSearch = async () => {
     try {
       if (searchTerm.trim() !== "") {
         const results = await fetchPlaces(searchTerm);
-        setPlaces(results);
+        setSearchPlaces(results);
       }
     } catch (error) {
       setErrorMessage("Error performing search");
@@ -274,20 +254,15 @@ const WeatherDashboard = () => {
   };
 
   const handleAddPlace = async (place) => {
-    if (forecastData.some((data) => data.location === place.name)) {
+    if (places.some((p) => p.name === place.name)) {
       setErrorMessage("This place is already added to the forecast");
       return;
     }
-    try {
-      const forecast = await fetchForecast(place.latitude, place.longitude, startDateTime, endDateTime);
-      setForecastData((prev) => [...prev, { ...forecast, location: place.name, latitude: place.latitude, longitude: place.longitude }]);
-    } catch (error) {
-      setErrorMessage("Error loading forecast");
-    }
+    setPlaces((prev) => [...prev, place]);
   };
 
-  const handleRemovePlace = (location) => {
-    setForecastData((prev) => prev.filter((data) => data.location !== location));
+  const handleRemovePlace = (data) => {
+    setPlaces((prev) => prev.filter((d) => d.name !== data.place.name));
   };
 
   const handleSelectDay = (day) => {
@@ -302,7 +277,6 @@ const WeatherDashboard = () => {
     });
   };
 
-  // TODO select coming days (up to 10 days in future) instead of date-time range. show per day forecast in the table (each row one day). allow setting time range for each day?
   // TODO add weather icon (e.g. sun, cloud, rain) to the forecast table
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -328,22 +302,13 @@ const WeatherDashboard = () => {
             </IconButton>
           </Box>
           <Box maxHeight={160} overflow="auto" mt={2}>
-            {places.map((place) => (
+            {searchPlaces.map((place) => (
               <Box key={place.name} sx={{ p: 1, cursor: "pointer", "&:hover": { backgroundColor: "#f0f0f0" } }} onClick={() => handleAddPlace(place)}>
                 {place.name}
               </Box>
             ))}
           </Box>
         </Paper>
-
-        <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
-          <Box display="flex" gap={2} mt={1}>
-            <DatePicker label="Start Date" value={startDateTime} onChange={handleStartDateTimeChange} disablePast />
-            <TimePicker label="Start Hour" ampm={false} views={['hours']} value={startDateTime} onChange={handleStartDateTimeChange} />
-            <DatePicker label="End Date" value={endDateTime} onChange={handleEndDateTimeChange} disablePast />
-            <TimePicker label="End Hour" ampm={false} views={['hours']} value={endDateTime} onChange={handleEndDateTimeChange} />
-          </Box>
-        </Box>
 
         <Paper sx={{ p: 0, mb: 3 }}>
           <TableContainer component={Paper} sx={{ width: "100%", overflow: "hidden", margin: 0 }}>
@@ -383,37 +348,39 @@ const WeatherDashboard = () => {
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
-                <TableRow>
-                  <TableCell>Location</TableCell>
-                  <TableCell align="center"><Tooltip title="Min Temp (°C)" placement="top">Low</Tooltip></TableCell>
-                  <TableCell align="center"><Tooltip title="Max Temp (°C)" placement="top">High</Tooltip></TableCell>
-                  <TableCell align="center"><Tooltip title="Total Precipitation (mm)" placement="top">Rain</Tooltip></TableCell>
-                  <TableCell align="center"><Tooltip title="Wind speed (gusts) (m/s)" placement="top">Wind</Tooltip></TableCell>
-                  <TableCell align="center"><Tooltip title="Sunshine (h)" placement="top">Sun</Tooltip></TableCell>
+                <TableRow sx={{backgroundColor: '#eeeeee'}}>
+                  <TableCell sx={{color: '#7e761b'}}>Location</TableCell>
+                  <TableCell align="center" sx={{color: '#7e761b'}}>Date</TableCell>
+                  <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Min Temp (°C)" placement="top">Low</Tooltip></TableCell>
+                  <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Max Temp (°C)" placement="top">High</Tooltip></TableCell>
+                  <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Total Precipitation (mm)" placement="top">Rain</Tooltip></TableCell>
+                  <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Wind speed (gusts) (m/s)" placement="top">Wind</Tooltip></TableCell>
+                  <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Sunshine (h)" placement="top">Sun</Tooltip></TableCell>
                   <TableCell></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {forecastData.map((data, i) => (
-                  <TableRow key={data.location} sx={i < forecastData.length - 1 ? { '& td, & th': { borderBottom: '1px solid #186eba' } } : {}}>
-                    <TableCell sx={{fontWeight: 700}}>{data.location}</TableCell>
+                  <TableRow key={`${data.place.name}-${data.day.key}`} sx={i < forecastData.length - 1 && forecastData[i+1].place.name !== data.place.name ? { '& td, & th': { borderBottom: '1px solid #186eba' } } : {'& td, & th': { borderBottom: 0 } }}>
+                    {i == 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell sx={{fontWeight: 700}} style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={3}>{data.place.name}</TableCell>) : (<></>)}
+                    <TableCell align="center" sx={{color: '#186eba'}}>{data.day.subtitle}</TableCell>
                     <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
                     <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>
                     <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}} align="center">{data.totalPrecip} ({data.precipProb}%)</TableCell>
                     <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}} align="center">{data.windSpeed} ({data.windGusts})</TableCell>
                     <TableCell sx={{background: getSunshineColor(data.sunshine)}} align="center">{data.sunshine}</TableCell>
-                    <TableCell>
-                      <IconButton size="small" color="error" onClick={() => handleRemovePlace(data.location)}>
+                    {i == 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" style={i < forecastData.length - forecastDays.filter((day) => day.selected).length  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={3}>
+                      <IconButton size="small" color="error" onClick={() => handleRemovePlace(data)}>
                         <RemoveIcon />
                       </IconButton>
-                    </TableCell>
+                    </TableCell>) : (<></>)}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         </Paper>
-        <Snackbar open={!!errorMessage} autoHideDuration={4000} onClose={() => setErrorMessage("")} message={errorMessage} />
+        <Snackbar open={!!errorMessage} autoHideDuration={4000} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} onClose={() => setErrorMessage("")} message={errorMessage} />
       </Container>
     </LocalizationProvider>
   );
