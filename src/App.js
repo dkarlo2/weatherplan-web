@@ -403,10 +403,7 @@ const WeatherDashboard = () => {
         </TableContainer>
       </Paper>
 
-      <Paper sx={{ p: 2 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6" color="primary">Forecast</Typography>
-        </Box>
+      <Paper sx={{ p: 0 }}>
         <TableContainer component={Paper}>
           <Table size="small">
             <TableHead>
