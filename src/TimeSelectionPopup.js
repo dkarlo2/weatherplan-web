@@ -30,7 +30,7 @@ const TimeSelectionPopup = ({ open, onClose, onConfirm, day, place }) => {
         };
         fetchAndSet();
     }
-  }, [open])
+  }, [open, day.date, place.latitude, place.longitude]);
 
   const handleSliderChange = (event, newValue) => {
     setTimeRange(newValue);
