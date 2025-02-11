@@ -5,6 +5,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { fetchPlaces } from "./services/placesService";
 import { fetchForecast } from "./services/forecastService";
 import TimeSelectionPopup from "./TimeSelectionPopup";
+import DailyForecastPopup from "./DailyForecastPopup";
 import { getWeatherIcon, getTemperatureGradient, getPrecipitationGradient, getSunshineColor, getWindColor } from "./weatherUtils";
 
 const getDateGradient = (startHour, endHour) => {
@@ -161,7 +162,6 @@ const WeatherDashboard = () => {
     });
   };
 
-  // TODO add weather icon (e.g. sun, cloud, rain) to the forecast table
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -247,8 +247,12 @@ const WeatherDashboard = () => {
                   <TableRow key={`${data.place.name}-${data.day.key}`} sx={i < forecastData.length - 1 && forecastData[i+1].place.name !== data.place.name ? { '& td, & th': { borderBottom: '1px solid #186eba', p: 0.5 } } : {'& td, & th': { borderBottom: 0, p: 0.5 } }}>
                     <TimeSelectionPopup
                       open={data.timePopupOpen}
-                      onClose={() => setForecastData((prev) => prev.map((d) => ({ ...d, timePopupOpen: false })))}
-                      onConfirm={(times) => {setForecastData((prev) => prev.map((d) => ({ ...d, timePopupOpen: false }))); setForecastDays((prev) => prev.map((d) => ({ ...d, startHour: d.key === data.day.key ? times.start : d.startHour, endHour: d.key === data.day.key ? times.end : d.endHour })))}}
+                      onClose={(times) => {setForecastData((prev) => prev.map((d) => ({ ...d, timePopupOpen: false }))); setForecastDays((prev) => prev.map((d) => ({ ...d, startHour: d.key === data.day.key ? times.start : d.startHour, endHour: d.key === data.day.key ? times.end : d.endHour })))}}
+                      day={data.day}
+                  />
+                  <DailyForecastPopup
+                      open={data.dailyForecastPopupOpen}
+                      onClose={() => setForecastData((prev) => prev.map((d) => ({ ...d, dailyForecastPopupOpen: false })))}
                       day={data.day}
                       place={data.place}
                   />
@@ -286,6 +290,11 @@ const WeatherDashboard = () => {
                   </TableCell>
                   <TableCell
                     align="center"
+                    onClick={() => setForecastData((prev) => prev.map((d) => ({ ...d, dailyForecastPopupOpen: d.place.name === data.place.name && d.day.key === data.day.key })))}
+                    sx={{
+                      cursor: "pointer", // Show pointer cursor
+                      "&:hover": { backgroundColor: "#eeeeee" }, // Highlight on hover
+                    }}
                     style={{
                       padding: 0
                     }}
