@@ -150,7 +150,7 @@ export const getPrecipitationPercentage = (value) => {
 
 export const getPrecipitationColor = (value) => {
   const percentage = getPrecipitationPercentage(value);
-  return `color-mix(in hsl, cyan ${100 - percentage}%, blue ${percentage}%)`;
+  return `color-mix(in hsl, cyan ${100 - percentage}%, #0571f5 ${percentage}%)`;
 }
 
 export const getWindColor = (speed, gust) => {
