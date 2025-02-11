@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5100"; // TODO
+const API_BASE_URL = "http://192.168.1.188:5100"; // TODO
 const API_TOKEN = "test-token"; // TODO
 
 export const fetchForecast = async (latitude, longitude, startTime, endTime, batch_hours = null) => {

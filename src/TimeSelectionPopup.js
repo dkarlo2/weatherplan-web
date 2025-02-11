@@ -48,15 +48,15 @@ const TimeSelectionPopup = ({ open, onClose, onConfirm, day, place }) => {
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogContent align="center">
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography fontSize="1.2rem">{place.name}</Typography>
-          <Box>
-            <Typography color="primary" fontSize="0.9rem">{day.title}</Typography>
-            <Typography variant="caption" fontSize="0.75rem">{day.subtitle}</Typography>
+          <Typography fontSize="16px">{place.name}</Typography>
+          <Box sx={{minWidth: "80px"}}>
+            <Typography color="primary" fontSize="14px">{day.title}</Typography>
+            <Typography variant="caption" fontSize="12px">{day.subtitle}</Typography>
           </Box>
         </Box>
 
         <Paper sx={{ p: 0, mb: 3 }}>
-            <TableContainer component={Paper} sx={{ width: "100%", overflow: "hidden", margin: 0 }}>
+            <TableContainer component={Paper} sx={{ width: "100%", margin: 0 }}>
             <Table size="small" sx={{ width: "100%", tableLayout: "fixed" }}>
                 <TableHead>
                 <TableRow>
@@ -68,21 +68,23 @@ const TimeSelectionPopup = ({ open, onClose, onConfirm, day, place }) => {
                             wordWrap: "break-word",
                             whiteSpace: "normal",
                             padding: "1px",
-                            minWidth: "auto", // Prevent extra spacing
                             backgroundColor: '#eeeeee'
                         }}
+                        style={{
+                          width: "67px"
+                        }}
                     >
-                        <Typography color="#7e761b" fontSize="0.9rem">{h.start}-{h.end}</Typography>
+                        <Typography color="#7e761b" fontSize="14px">{h.start}-{h.end}</Typography>
                         <Box>
                           {getWeatherIcon(forecastData.weatherCode[i], forecastData.isDay[i], 25)}
                         </Box>
                         <Box>
-                          <Typography color={getSimplifiedTempColor(Math.round((forecastData.minTemp[i] + forecastData.maxTemp[i]) / 2))} fontSize="0.9rem">
+                          <Typography color={getSimplifiedTempColor(Math.round((forecastData.minTemp[i] + forecastData.maxTemp[i]) / 2))} fontSize="14px">
                             {Math.round((forecastData.minTemp[i] + forecastData.maxTemp[i]) / 2)}°C
                           </Typography>
                         </Box>
                         <Box>
-                          <Typography color="primary" fontSize="0.75rem">
+                          <Typography color="primary" fontSize="12px">
                             {forecastData.totalPrecip[i]}mm
                           </Typography>
                         </Box>
@@ -94,7 +96,7 @@ const TimeSelectionPopup = ({ open, onClose, onConfirm, day, place }) => {
             </TableContainer>
         </Paper>
 
-        <Typography color="primary" fontSize="0.9rem">Day summary: {timeRange[0]}-{timeRange[1]}</Typography>
+        <Typography color="primary" fontSize="14px">Day summary: {timeRange[0]}-{timeRange[1]}</Typography>
         <Box mt={1}>
           <Slider
             value={timeRange}

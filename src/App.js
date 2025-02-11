@@ -184,7 +184,7 @@ const WeatherDashboard = () => {
             <SearchIcon />
           </IconButton>
         </Box>
-        <Box maxHeight={160} overflow="auto" mt={2}>
+        <Box maxHeight={160} overflow="auto" mt={searchPlaces.length > 0 ? 2 : 0}>
           {searchPlaces.map((place) => (
             <Box key={place.name} sx={{ p: 1, cursor: "pointer", "&:hover": { backgroundColor: "#f0f0f0" } }} onClick={() => handleAddPlace(place)}>
               {place.name}
@@ -194,7 +194,7 @@ const WeatherDashboard = () => {
       </Paper>
 
       <Paper sx={{ p: 0, mb: 3 }}>
-        <TableContainer component={Paper} sx={{ width: "100%", overflow: "hidden", margin: 0 }}>
+        <TableContainer component={Paper} sx={{ width: "100%", margin: 0 }}>
           <Table size="small" sx={{ width: "100%", tableLayout: "fixed" }}>
             <TableHead>
               <TableRow>
@@ -206,16 +206,18 @@ const WeatherDashboard = () => {
                     sx={{
                       cursor: "pointer", // Show pointer cursor
                       backgroundColor: day.selected ? "#c9bb2b" : "transparent",
-                      "&:hover": { backgroundColor: "#c9bb2b" }, // Highlight on hover
+                      "&:hover": { backgroundColor: "#eeeeee" }, // Highlight on hover
                       transition: "background-color 0.3s",
                       wordWrap: "break-word",
                       whiteSpace: "normal",
-                      padding: "1px",
-                      minWidth: "auto", // Prevent extra spacing
+                      padding: "1px"
+                    }}
+                    style={{
+                      width: "80px"
                     }}
                   >
-                    <Typography color="primary" fontSize="0.9rem">{day.title}</Typography>
-                    <Typography variant="caption" fontSize="0.75rem">{day.subtitle}</Typography>
+                    <Typography color="primary" fontSize="14px">{day.title}</Typography>
+                    <Typography variant="caption" fontSize="12px">{day.subtitle}</Typography>
                   </TableCell>
                 ))}
               </TableRow>
@@ -230,12 +232,12 @@ const WeatherDashboard = () => {
             <TableHead>
               <TableRow sx={{backgroundColor: '#eeeeee'}}>
                 <TableCell align="center" sx={{color: '#7e761b'}}>Location</TableCell>
-                <TableCell align="center" sx={{color: '#7e761b', minWidth: '5rem'}}><Tooltip title="Day (selected time interval)" placement="top">Day</Tooltip></TableCell>
+                <TableCell align="center" sx={{color: '#7e761b', minWidth: '80px'}}><Tooltip title="Day (selected time interval)" placement="top">Day</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Median weather conditioons" placement="top">Weather</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Min Temp (°C)" placement="top">Low</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Max Temp (°C)" placement="top">High</Tooltip></TableCell>
-                <TableCell align="center" sx={{color: '#7e761b', minWidth: '5rem'}}><Tooltip title="Total Precipitation (mm)" placement="top">Precipitation</Tooltip></TableCell>
-                <TableCell align="center" sx={{color: '#7e761b', minWidth: '3rem'}}><Tooltip title="Wind speed (gusts) (m/s)" placement="top">Wind</Tooltip></TableCell>
+                <TableCell align="center" sx={{color: '#7e761b', minWidth: '80px'}}><Tooltip title="Total Precipitation (mm)" placement="top">Precipitation</Tooltip></TableCell>
+                <TableCell align="center" sx={{color: '#7e761b', minWidth: '48px'}}><Tooltip title="Wind speed (gusts) (m/s)" placement="top">Wind</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Sunshine (h)" placement="top">Sun</Tooltip></TableCell>
                 <TableCell></TableCell>
               </TableRow>
@@ -254,6 +256,7 @@ const WeatherDashboard = () => {
                     <TableCell
                       align="center"
                       style={i < forecastData.length - forecastDataRowSpan  ? {borderBottom: '1px solid #186eba' } : {}}
+                      sx={{minWidth: '200px'}}
                       rowSpan={forecastDataRowSpan}
                     >
                       {data.place.name}
@@ -268,7 +271,7 @@ const WeatherDashboard = () => {
                       "&:hover": { backgroundColor: "#eeeeee" }, // Highlight on hover
                     }}
                   >
-                    <Typography color="primary" fontSize="0.75rem">
+                    <Typography color="primary" fontSize="12px">
                       {data.day.title} ({data.day.startHour}-{data.day.endHour})
                     </Typography>
                     <Box
@@ -276,7 +279,7 @@ const WeatherDashboard = () => {
                         position: 'relative',
                         bottom: 0,
                         background: getDateGradient(data.day.startHour, data.day.endHour),
-                        height: '0.3rem',
+                        height: '5px',
                       }}
                     >
                     </Box>
