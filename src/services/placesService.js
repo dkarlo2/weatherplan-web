@@ -11,6 +11,10 @@ export const fetchPlaces = async (query) => {
         "x-api-token": API_TOKEN,
       },
     });
+    if (response.status !== 200) {
+      console.error("Error fetching places:", response);
+      return [];
+    }
     return response.data; // Expected format: [{ name, latitude, longitude }, ...]
   } catch (error) {
     console.error("Error fetching places:", error);

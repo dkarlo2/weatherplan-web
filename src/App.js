@@ -2,188 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Snackbar, Tooltip } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { WiDaySunny, WiDayCloudyHigh, WiDayCloudy, WiCloud, WiFog, WiRainMix, WiSleet, WiRain, WiSnow, WiShowers, WiThunderstorm, WiNightClear, WiNightAltCloudyHigh, WiNightAltCloudy } from "weather-icons-react";
 import { fetchPlaces } from "./services/placesService";
 import { fetchForecast } from "./services/forecastService";
 import TimeSelectionPopup from "./TimeSelectionPopup";
-
-const getTemperatureGradient = (minTemp, maxTemp) => {
-  const colors = [
-    { value: -30, color: "#00008b" },  // Dark Blue (Very Cold)
-    { value: -10, color: "#1e90ff" },  // Dodger Blue
-    { value: 0, color: "#87ceeb" },    // Sky Blue
-    { value: 10, color: "#ffff99" },   // Light Yellow
-    { value: 15, color: "#ffd700" },   // Gold
-    { value: 20, color: "#ffa500" },   // Orange
-    { value: 25, color: "#ff4500" },   // Red-Orange
-    { value: 35, color: "#8b0000" },   // Dark Red
-    { value: 40, color: "#4b0000" }    // Deep Red (Extreme Heat)
-  ];
-
-  const min = Math.max(minTemp, -30);
-  const max = Math.min(maxTemp, 40);
-
-  if (min === max) {
-    return getInterpolatedColor(colors, min);
-  }
-
-  let gradientColors = [];
-
-  // Include interpolated start color
-  gradientColors.push({ value: min, color: getInterpolatedColor(colors, min) });
-
-  // Add all stops in between
-  for (const stop of colors) {
-      if (stop.value > min && stop.value < max) {
-        gradientColors.push(stop);
-      }
-  }
-
-  // Include interpolated end color
-  gradientColors.push({ value: max, color: getInterpolatedColor(colors, max) });
-
-  // Convert to gradient CSS format
-  const gradientString = gradientColors.map(({ value, color }) => {
-      const percentage = ((value - min) / (max - min)) * 100;
-      return `${color} ${percentage.toFixed(2)}%`;
-  }).join(", ");
-
-  return `linear-gradient(to right, ${gradientString})`;
-};
-
-function getInterpolatedColor(colors, value) {
-  for (let i = 0; i < colors.length - 1; i++) {
-      const start = colors[i];
-      const end = colors[i + 1];
-
-      if (value >= start.value && value <= end.value) {
-          const ratio = (value - start.value) / (end.value - start.value);
-          return interpolateColor(start.color, end.color, ratio);
-      }
-  }
-  return colors[colors.length - 1].color; // Default fallback
-}
-
-// Function to interpolate between two colors
-const interpolateColor = (color1, color2, ratio) => {
-  const hexToRgb = (hex) =>
-    hex.match(/\w\w/g).map((x) => parseInt(x, 16));
-
-  const rgbToHex = (r, g, b) =>
-    `#${[r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
-
-  const [r1, g1, b1] = hexToRgb(color1);
-  const [r2, g2, b2] = hexToRgb(color2);
-
-  const r = Math.round(r1 + (r2 - r1) * ratio);
-  const g = Math.round(g1 + (g2 - g1) * ratio);
-  const b = Math.round(b1 + (b2 - b1) * ratio);
-
-  return rgbToHex(r, g, b);
-};
-
-const getPrecipitationGradient = (value) => {
-  const minPrecip = 0;
-  const maxPrecip = 30;
-  const percentage = (Math.max(minPrecip, Math.min(maxPrecip, value)) - minPrecip) / (maxPrecip - minPrecip) * 100;
-  const precipColor = `color-mix(in hsl, cyan ${100 - percentage}%, blue ${percentage}%)`;
-  return `linear-gradient(to top,${precipColor} 0%, transparent ${percentage}%)`;
-};
-
-const getWindColor = (speed, gust) => {
-  const colors = [ // white and then 4 shades of red
-    { value: 0, color: "#ffffff" },
-    { value: 25, color: "#ffcccc" },
-    { value: 50, color: "#ff9999" },
-    { value: 75, color: "#ff3333" },
-    { value: 100, color: "#ff0000" }
-  ];
-  const minSpeed = 0;
-  const maxSpeed = 20;
-  const maxGust = 50;
-  const percentage = Math.max(
-    (Math.max(minSpeed, Math.min(maxSpeed, speed)) - minSpeed) / (maxSpeed - minSpeed),
-    (Math.max(minSpeed, Math.min(maxGust, gust)) - minSpeed) / (maxGust - minSpeed),
-  ) * 100;
-  // choose the closest shade (without interpolation)
-  for (let i = 0; i < colors.length - 1; i++) {
-    if (percentage < (colors[i].value + colors[i + 1].value) / 2) {
-      return colors[i].color;
-    }
-  }
-  return colors[colors.length - 1].color;
-};
-
-const getSunshineColor = (hours) => {
-  const colors = [ // white and 4 shades of yellow
-    { value: 0, color: "#ffffff" },
-    { value: 25, color: "#fff5bb" },
-    { value: 50, color: "#ffea77" },
-    { value: 75, color: "#ffdf33" },
-    { value: 100, color: "#ffd800" }
-  ];
-  const minHours = 0;
-  const maxHours = 12;
-  const percentage = (Math.max(minHours, Math.min(maxHours, hours)) - minHours) / (maxHours - minHours) * 100;
-  // choose the closest shade (without interpolation)
-  for (let i = 0; i < colors.length - 1; i++) {
-    if (percentage < (colors[i].value + colors[i + 1].value) / 2) {
-      return colors[i].color;
-    }
-  }
-  return colors[colors.length - 1].color;
-};
-
-const getWeatherIcon = (weatherCode, isDay, size) => {
-  // https://open-meteo.com/en/docs
-  switch (weatherCode) {
-    case 0:
-      return isDay ? (<WiDaySunny size={size} />) : (<WiNightClear size={size} />);
-    case 1:
-      return isDay ? (<WiDayCloudyHigh size={size} />) : (<WiNightAltCloudyHigh size={size} />);
-    case 2:
-      return isDay ? (<WiDayCloudy size={size} />) : (<WiNightAltCloudy size={size} />);
-    case 3:
-      return (<WiCloud size={size} />);
-    case 45:
-    case 48:
-      return (<WiFog size={size} />);
-    case 51:
-    case 53:
-    case 55:
-      return (<WiRainMix size={size} />);
-    case 56:
-    case 57:
-      return (<WiSleet size={size} />);
-    case 61:
-    case 63:
-    case 65:
-      return (<WiRain size={size} />);
-    case 66:
-    case 67:
-      return (<WiSleet size={size} />);
-    case 71:
-    case 73:
-    case 75:
-      return (<WiSnow size={size} />);
-    case 77:
-      return (<WiSnow size={size} />);
-    case 80:
-    case 81:
-    case 82:
-      return (<WiShowers size={size} />);
-    case 85:
-    case 86:
-      return (<WiSnow size={size} />);
-    case 95:
-      return (<WiThunderstorm size={size} />);
-    case 96:
-    case 99:
-      return (<WiThunderstorm size={size} />);
-    default:
-      return weatherCode;
-  }
-};
+import { getWeatherIcon, getTemperatureGradient, getPrecipitationGradient, getSunshineColor, getWindColor } from "./weatherUtils";
 
 const getDateGradient = (startHour, endHour) => {
   const startPercentage = (startHour / 24) * 100;
@@ -246,15 +68,14 @@ const loadForecastDays = () => {
     date.setDate(date.getDate() + i);
     const dayTitle = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : date.toLocaleDateString("en-US", { weekday: "long" });
     const storedDay = storedForecastDays.find((d) => d.date === date.toISOString());
-    console.log(storedDay);
     days.push({
       key: i,
       title: dayTitle,
       subtitle: formatDate(date),
       date: date,
-      selected: storedForecastDays.length > 0 ? storedDay.selected : i === 0,
-      startHour: storedForecastDays.length > 0 && storedDay.selected ? storedDay?.startHour || 0 : 0,
-      endHour: storedForecastDays.length > 0 && storedDay.selected ? storedDay?.endHour || 24 : 24
+      selected: storedForecastDays.length > 0 ? storedDay?.selected : i === 0,
+      startHour: storedForecastDays.length > 0 && storedDay?.selected ? storedDay?.startHour || 0 : 0,
+      endHour: storedForecastDays.length > 0 && storedDay?.selected ? storedDay?.endHour || 24 : 24
     });
   }
   return days;
@@ -421,14 +242,14 @@ const WeatherDashboard = () => {
             </TableHead>
             <TableBody>
               {forecastData.map((data, i) => (
-                <>
-                <TimeSelectionPopup
-                  open={data.timePopupOpen}
-                  onClose={() => setForecastData((prev) => prev.map((d) => ({ ...d, timePopupOpen: false })))}
-                  onConfirm={(times) => {setForecastData((prev) => prev.map((d) => ({ ...d, timePopupOpen: false }))); setForecastDays((prev) => prev.map((d) => ({ ...d, startHour: d.key === data.day.key ? times.start : d.startHour, endHour: d.key === data.day.key ? times.end : d.endHour })))}}
-                  day={data.day}
-                />
-                <TableRow key={`${data.place.name}-${data.day.key}`} sx={i < forecastData.length - 1 && forecastData[i+1].place.name !== data.place.name ? { '& td, & th': { borderBottom: '1px solid #186eba', p: 0.5 } } : {'& td, & th': { borderBottom: 0, p: 0.5 } }}>
+                  <TableRow key={`${data.place.name}-${data.day.key}`} sx={i < forecastData.length - 1 && forecastData[i+1].place.name !== data.place.name ? { '& td, & th': { borderBottom: '1px solid #186eba', p: 0.5 } } : {'& td, & th': { borderBottom: 0, p: 0.5 } }}>
+                    <TimeSelectionPopup
+                      open={data.timePopupOpen}
+                      onClose={() => setForecastData((prev) => prev.map((d) => ({ ...d, timePopupOpen: false })))}
+                      onConfirm={(times) => {setForecastData((prev) => prev.map((d) => ({ ...d, timePopupOpen: false }))); setForecastDays((prev) => prev.map((d) => ({ ...d, startHour: d.key === data.day.key ? times.start : d.startHour, endHour: d.key === data.day.key ? times.end : d.endHour })))}}
+                      day={data.day}
+                      place={data.place}
+                  />
                   {i === 0 || forecastData[i-1].place.name !== data.place.name ? (
                     <TableCell
                       align="center"
@@ -474,14 +295,13 @@ const WeatherDashboard = () => {
                   <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}} align="center">{data.windSpeed} ({data.windGusts})</TableCell>
                   <TableCell sx={{background: getSunshineColor(data.sunshine)}} align="center">{data.sunshine}</TableCell>
                   {i === 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" style={i < forecastData.length - forecastDataRowSpan  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDataRowSpan}>
-                    <Tooltip title="Remove location" placement="top">
+                    <Tooltip title="Remove location" placement="right">
                       <IconButton size="small" color="error" onClick={() => handleRemovePlace(data)}>
                         <RemoveIcon />
                       </IconButton>
                     </Tooltip>
                   </TableCell>) : (<></>)}
                 </TableRow>
-                </>
               ))}
             </TableBody>
           </Table>
