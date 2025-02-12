@@ -77,7 +77,7 @@ const loadForecastDays = () => {
       selected: storedForecastDays.length > 0 ? storedDay?.selected : i === 0,
       startHour: storedForecastDays.length > 0 && storedDay?.selected ? storedDay?.startHour || 0 : 0,
       endHour: storedForecastDays.length > 0 && storedDay?.selected ? storedDay?.endHour || 24 : 24,
-      minHour: i === 0 ? new Date().getHours() + 1 : 0,
+      minHour: i === 0 ? Math.min(23, new Date().getHours() + 1) : 0,
       maxHour: 24,
     };
     if (i === 0) {
