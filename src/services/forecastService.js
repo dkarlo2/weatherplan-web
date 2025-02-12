@@ -1,7 +1,5 @@
 import axios from "axios";
-
-const API_BASE_URL = "http://192.168.1.188:5100"; // TODO
-const API_TOKEN = "test-token"; // TODO
+import { API_BASE_URL } from "./api";
 
 export const fetchForecast = async (latitude, longitude, startTime, endTime, batch_hours = null) => {
   try {
@@ -12,10 +10,7 @@ export const fetchForecast = async (latitude, longitude, startTime, endTime, bat
         start_time: startTime.toISOString(),
         end_time: endTime.toISOString(),
         batch_hours,
-      },
-      headers: {
-         "x-api-token": API_TOKEN,
-      },
+      }
     });
     if (response.status !== 200) {
       console.error("Error fetching forecast:", response);
