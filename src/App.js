@@ -69,15 +69,21 @@ const loadForecastDays = () => {
     date.setDate(date.getDate() + i);
     const dayTitle = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : date.toLocaleDateString("en-US", { weekday: "long" });
     const storedDay = storedForecastDays.find((d) => d.date === date.toISOString());
-    days.push({
+    const day = {
       key: i,
       title: dayTitle,
       subtitle: formatDate(date),
       date: date,
       selected: storedForecastDays.length > 0 ? storedDay?.selected : i === 0,
       startHour: storedForecastDays.length > 0 && storedDay?.selected ? storedDay?.startHour || 0 : 0,
-      endHour: storedForecastDays.length > 0 && storedDay?.selected ? storedDay?.endHour || 24 : 24
-    });
+      endHour: storedForecastDays.length > 0 && storedDay?.selected ? storedDay?.endHour || 24 : 24,
+      minHour: i === 0 ? new Date().getHours() + 1 : 0,
+      maxHour: 24,
+    };
+    if (i === 0) {
+      day.startHour = Math.max(day.minHour, day.startHour);
+    }
+    days.push(day);
   }
   return days;
 };

@@ -21,9 +21,9 @@ const TimeSelectionPopup = ({ open, onClose, day }) => {
           <Typography variant="caption" fontSize="12px">{day.subtitle}</Typography>
         </Box>
         <Box display="flex" justifyContent="space-around" alignItems="center">
-          <NumberPicker open={open} min={0} max={end - 1} selected={start} setSelected={(value) => setStart(value)} />
+          <NumberPicker open={open} min={day.minHour} max={end - 1} selected={start} setSelected={(value) => setStart(value)} />
           <Typography variant="h6" color="primary" sx={{padding: 4}}>-</Typography>
-          <NumberPicker open={open} min={start + 1} max={24} selected={end} setSelected={(value) => setEnd(value)} />
+          <NumberPicker open={open} min={start + 1} max={day.maxHour} selected={end} setSelected={(value) => setEnd(value)} />
         </Box>
       </DialogContent>
     </Dialog>
