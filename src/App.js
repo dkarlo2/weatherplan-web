@@ -82,6 +82,7 @@ const loadForecastDays = () => {
     };
     if (i === 0) {
       day.startHour = Math.max(day.minHour, day.startHour);
+      day.endHour = Math.max(day.startHour + 1, day.endHour);
     }
     days.push(day);
   }
