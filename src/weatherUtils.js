@@ -2,13 +2,13 @@ import { WiDaySunny, WiDayCloudy, WiCloud, WiFog, WiRain, WiSnow, WiThunderstorm
 
 const sanitizeRain = (totalPrecip, sunshine, size) => {
   if (totalPrecip === 0) {
-    if (sunshine == 0) {
+    if (sunshine === 0) {
       return (<WiCloud size={size} />);
     } else {
       return (<WiDayCloudy size={size} />);
     }
   }
-  if (sunshine == 0) {
+  if (sunshine === 0) {
     return (<WiRain size={size} />);
   } else {
     return (<WiDayRain size={size} />);
@@ -17,13 +17,13 @@ const sanitizeRain = (totalPrecip, sunshine, size) => {
 
 const sanitizeSnow = (totalPrecip, sunshine, size) => {
   if (totalPrecip === 0) {
-    if (sunshine == 0) {
+    if (sunshine === 0) {
       return (<WiCloud size={size} />);
     } else {
       return (<WiDayCloudy size={size} />);
     }
   }
-  if (sunshine == 0) {
+  if (sunshine === 0) {
     return (<WiSnow size={size} />);
   } else {
     return (<WiDaySnow size={size} />);
@@ -36,7 +36,7 @@ const sanitizeCloudy = (totalPrecip, sunshine, size) => {
 
 const sanitizeSunny = (totalPrecip, sunshine, isDay, size) => {
   if (totalPrecip === 0) {
-    if (sunshine == 0) {
+    if (sunshine === 0) {
       return (<WiCloud size={size} />);
     } else {
       return isDay ? (<WiDaySunny size={size} />) : (<WiNightClear size={size} />);
@@ -48,7 +48,7 @@ const sanitizeSunny = (totalPrecip, sunshine, isDay, size) => {
 
 const sanitizePartlyCloudy = (totalPrecip, sunshine, isDay, size) => {
   if (totalPrecip === 0) {
-    if (sunshine == 0) {
+    if (sunshine === 0) {
       return (<WiCloud size={size} />);
     } else {
       return isDay ? (<WiDayCloudy size={size} />) : (<WiNightAltCloudy size={size} />);
