@@ -306,7 +306,7 @@ const WeatherDashboard = () => {
                       padding: 0
                     }}
                   >
-                    {getWeatherIcon(data.weatherCode, data.isDay, 25)}
+                    {getWeatherIcon(data.weatherCode, data.isDay, data.totalPrecip, data.sunshine, 25)}
                   </TableCell>
                   <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
                   <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>

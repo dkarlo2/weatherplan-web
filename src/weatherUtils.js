@@ -1,48 +1,100 @@
-import { WiDaySunny, WiDayCloudyHigh, WiDayCloudy, WiCloud, WiFog, WiRainMix, WiSleet, WiRain, WiSnow, WiShowers, WiThunderstorm, WiNightClear, WiNightAltCloudyHigh, WiNightAltCloudy } from "weather-icons-react";
+import { WiDaySunny, WiDayCloudy, WiCloud, WiFog, WiRain, WiSnow, WiThunderstorm, WiNightClear, WiNightAltCloudy, WiDayRain, WiDaySnow } from "weather-icons-react";
 
-export const getWeatherIcon = (weatherCode, isDay, size) => {
+const sanitizeRain = (totalPrecip, sunshine, size) => {
+  if (totalPrecip === 0) {
+    if (sunshine == 0) {
+      return (<WiCloud size={size} />);
+    } else {
+      return (<WiDayCloudy size={size} />);
+    }
+  }
+  if (sunshine == 0) {
+    return (<WiRain size={size} />);
+  } else {
+    return (<WiDayRain size={size} />);
+  }
+}
+
+const sanitizeSnow = (totalPrecip, sunshine, size) => {
+  if (totalPrecip === 0) {
+    if (sunshine == 0) {
+      return (<WiCloud size={size} />);
+    } else {
+      return (<WiDayCloudy size={size} />);
+    }
+  }
+  if (sunshine == 0) {
+    return (<WiSnow size={size} />);
+  } else {
+    return (<WiDaySnow size={size} />);
+  }
+}
+
+const sanitizeCloudy = (totalPrecip, sunshine, size) => {
+  return sanitizeRain(totalPrecip, sunshine, size);
+}
+
+const sanitizeSunny = (totalPrecip, sunshine, isDay, size) => {
+  if (totalPrecip === 0) {
+    if (sunshine == 0) {
+      return (<WiCloud size={size} />);
+    } else {
+      return isDay ? (<WiDaySunny size={size} />) : (<WiNightClear size={size} />);
+    }
+  } else {
+    return sanitizeRain(totalPrecip, sunshine, size);
+  }
+}
+
+const sanitizePartlyCloudy = (totalPrecip, sunshine, isDay, size) => {
+  if (totalPrecip === 0) {
+    if (sunshine == 0) {
+      return (<WiCloud size={size} />);
+    } else {
+      return isDay ? (<WiDayCloudy size={size} />) : (<WiNightAltCloudy size={size} />);
+    }
+  } else {
+    return sanitizeRain(totalPrecip, sunshine, size);
+  }
+}
+
+export const getWeatherIcon = (weatherCode, isDay, totalPrecip, sunshine, size) => {
     // https://open-meteo.com/en/docs
     switch (weatherCode) {
       case 0:
-        return isDay ? (<WiDaySunny size={size} />) : (<WiNightClear size={size} />);
+        return sanitizeSunny(totalPrecip, sunshine, isDay, size);
       case 1:
-        return isDay ? (<WiDayCloudyHigh size={size} />) : (<WiNightAltCloudyHigh size={size} />);
       case 2:
-        return isDay ? (<WiDayCloudy size={size} />) : (<WiNightAltCloudy size={size} />);
+        return sanitizePartlyCloudy(totalPrecip, sunshine, isDay, size);
       case 3:
-        return (<WiCloud size={size} />);
+        return sanitizeCloudy(totalPrecip, sunshine, size);
       case 45:
       case 48:
         return (<WiFog size={size} />);
       case 51:
       case 53:
       case 55:
-        return (<WiRainMix size={size} />);
       case 56:
       case 57:
-        return (<WiSleet size={size} />);
       case 61:
       case 63:
       case 65:
-        return (<WiRain size={size} />);
       case 66:
       case 67:
-        return (<WiSleet size={size} />);
+        return sanitizeRain(totalPrecip, sunshine, size);
       case 71:
       case 73:
       case 75:
-        return (<WiSnow size={size} />);
       case 77:
-        return (<WiSnow size={size} />);
+        return sanitizeSnow(totalPrecip, sunshine, size);
       case 80:
       case 81:
       case 82:
-        return (<WiShowers size={size} />);
+        return sanitizeRain(totalPrecip, sunshine, size);
       case 85:
       case 86:
-        return (<WiSnow size={size} />);
+        return sanitizeSnow(totalPrecip, sunshine, size);
       case 95:
-        return (<WiThunderstorm size={size} />);
       case 96:
       case 99:
         return (<WiThunderstorm size={size} />);

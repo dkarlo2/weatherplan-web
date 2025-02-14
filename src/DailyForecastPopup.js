@@ -53,7 +53,7 @@ const DailyForecastPopup = ({ open, onClose, day, place }) => {
                     >
                         <Typography color="#7e761b" fontSize="14px">{h.start}-{h.end}</Typography>
                         <Box>
-                          {getWeatherIcon(forecastData.weatherCode[i], forecastData.isDay[i], 25)}
+                          {getWeatherIcon(forecastData.weatherCode[i], forecastData.isDay[i], forecastData.totalPrecip[i], forecastData.sunshine[i], 25)}
                         </Box>
                         <Box>
                           <Typography color={getSimplifiedTempColor(Math.round((forecastData.minTemp[i] + forecastData.maxTemp[i]) / 2))} fontSize="14px">
@@ -61,8 +61,8 @@ const DailyForecastPopup = ({ open, onClose, day, place }) => {
                           </Typography>
                         </Box>
                         <Box>
-                          <Typography color="primary" fontSize="12px">
-                            {forecastData.totalPrecip[i]}mm
+                          <Typography color="primary" fontSize="12px" minHeight="20px">
+                            {forecastData.totalPrecip[i] > 0 ? `${forecastData.totalPrecip[i]}mm` : ' '}
                           </Typography>
                         </Box>
                     </TableCell>
