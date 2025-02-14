@@ -62,7 +62,7 @@ const DailyForecastPopup = ({ open, onClose, day, place }) => {
                         </Box>
                         <Box>
                           <Typography color="primary" fontSize="12px" minHeight="20px">
-                            {forecastData.totalPrecip[i] > 0 ? `${forecastData.totalPrecip[i]}mm` : ' '}
+                            {forecastData.totalPrecip[i] > 0 ? `${forecastData.totalPrecip[i]?.toFixed(1)}mm` : ' '}
                           </Typography>
                         </Box>
                     </TableCell>

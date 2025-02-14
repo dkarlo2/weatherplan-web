@@ -243,7 +243,7 @@ const WeatherDashboard = () => {
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Median weather conditioons" placement="top">Weather</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Min Temp (°C)" placement="top">Low</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Max Temp (°C)" placement="top">High</Tooltip></TableCell>
-                <TableCell align="center" sx={{color: '#7e761b', minWidth: '80px'}}><Tooltip title="Total Precipitation (mm)" placement="top">Precipitation</Tooltip></TableCell>
+                <TableCell align="center" sx={{color: '#7e761b', minWidth: '50px'}}><Tooltip title="Total Precipitation (mm)" placement="top">Precip.</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b', minWidth: '48px'}}><Tooltip title="Wind speed (gusts) (m/s)" placement="top">Wind</Tooltip></TableCell>
                 <TableCell align="center" sx={{color: '#7e761b'}}><Tooltip title="Sunshine (h)" placement="top">Sun</Tooltip></TableCell>
                 <TableCell></TableCell>
@@ -310,7 +310,7 @@ const WeatherDashboard = () => {
                   </TableCell>
                   <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
                   <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>
-                  <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}} align="center">{data.totalPrecip} ({data.precipProb}%)</TableCell>
+                  <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}} align="center">{data.totalPrecip == 0 ? '-' : data.totalPrecip?.toFixed(1)}</TableCell>
                   <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}} align="center">{data.windSpeed} ({data.windGusts})</TableCell>
                   <TableCell sx={{background: getSunshineColor(data.sunshine)}} align="center">{data.sunshine}</TableCell>
                   {i === 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" style={i < forecastData.length - forecastDataRowSpan  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDataRowSpan}>
