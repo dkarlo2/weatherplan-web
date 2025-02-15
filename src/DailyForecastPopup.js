@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, Box, Typography, Paper, TableContainer, Table, TableHead, TableRow, TableCell} from "@mui/material";
-import { fetchForecast } from "./services/forecastService";
+import { fetchGroupForecast } from "./services/forecastService";
 import { getWeatherIcon, getSimplifiedTempColor } from "./weatherUtils";
 
 const hourBatch = 3;
@@ -18,7 +18,15 @@ const DailyForecastPopup = ({ open, onClose, day, place }) => {
             startTime.setHours(0, 0, 0, 0);
             const endTime = new Date(day.date);
             endTime.setHours(24, 0, 0, 0, 0);
-            const response = await fetchForecast(place.latitude, place.longitude, startTime, endTime, hourBatch);
+            const response = (await fetchGroupForecast({
+              location_forecasts: [{
+                latitude: place.latitude,
+                longitude: place.longitude,
+                start_time: startTime,
+                end_time: endTime,
+                batch_hours: hourBatch
+              }]
+            }))[0];
             setForecastData(response);
         };
         fetchAndSet();

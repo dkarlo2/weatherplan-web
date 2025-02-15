@@ -1,17 +1,9 @@
 import axios from "axios";
 import { API_BASE_URL } from "./api";
 
-export const fetchForecast = async (latitude, longitude, startTime, endTime, batch_hours = null) => {
+export const fetchGroupForecast = async (groupForecastInput) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/forecast/`, {
-      params: {
-        latitude,
-        longitude,
-        start_time: startTime.toISOString(),
-        end_time: endTime.toISOString(),
-        batch_hours,
-      }
-    });
+    const response = await axios.post(`${API_BASE_URL}/forecast/group`, groupForecastInput);
     if (response.status !== 200) {
       console.error("Error fetching forecast:", response);
       return {};

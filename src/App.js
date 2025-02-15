@@ -3,7 +3,7 @@ import { Container, Typography, Box, TextField, Table, TableBody, TableCell, Tab
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { fetchPlaces } from "./services/placesService";
-import { fetchForecast } from "./services/forecastService";
+import { fetchGroupForecast } from "./services/forecastService";
 import TimeSelectionPopup from "./TimeSelectionPopup";
 import DailyForecastPopup from "./DailyForecastPopup";
 import { getWeatherIcon, getTemperatureGradient, getPrecipitationGradient, getSunshineColor, getWindColor } from "./weatherUtils";
@@ -107,21 +107,28 @@ const WeatherDashboard = () => {
   }, [forecastDays]);
 
   useEffect(() => {
+    if (!places.length || !forecastDays.some((day) => day.selected)) {
+      return;
+    }
+    // TODO use cache
     const fetchForecasts = async () => {
-      const forecastData = (await Promise.all(places.map(async (place) => await Promise.all(forecastDays.filter((day) => day.selected).map(async (day) => {
-        try {
+      const placeDays = places.flatMap((place) => forecastDays.filter((day) => day.selected).map((day) => ({ place: place, day: day })));
+      const forecastResponse = await fetchGroupForecast({
+        location_forecasts: placeDays.map(({place, day}) => {
           const startDateTime = new Date(day.date);
           startDateTime.setHours(day.startHour, 0, 0, 0);
           const endDateTime = new Date(day.date);
           endDateTime.setHours(day.endHour, 0, 0, 0);
-          const forecast = await fetchForecast(place.latitude, place.longitude, startDateTime, endDateTime); // TODO use cache
-          return {...forecast, place: place, day: day};
-        } catch (error) {
-          console.log(error);
-          setErrorMessage("Error loading forecast");
-          return {};
-        }
-      }))))).flat();
+          return {
+            latitude: place.latitude,
+            longitude: place.longitude,
+            start_time: startDateTime.toISOString(),
+            end_time: endDateTime.toISOString(),
+          };
+        })
+      });
+      // merge forecast data with place and day
+      const forecastData = placeDays.map(({place, day}, i) => ({...forecastResponse[i], place: place, day: day}));
       setForecastData(forecastData);
       setForecastDataRowSpan(forecastDays.filter((day) => day.selected).length);
     };
@@ -310,7 +317,7 @@ const WeatherDashboard = () => {
                   </TableCell>
                   <TableCell sx={{background: getTemperatureGradient(data.minTemp, (data.minTemp + data.maxTemp) / 2)}} align="center">{data.minTemp}</TableCell>
                   <TableCell sx={{background: getTemperatureGradient((data.minTemp + data.maxTemp) / 2, data.maxTemp)}} align="center">{data.maxTemp}</TableCell>
-                  <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}} align="center">{data.totalPrecip == 0 ? '-' : data.totalPrecip?.toFixed(1)}</TableCell>
+                  <TableCell sx={{background: getPrecipitationGradient(data.totalPrecip)}} align="center">{data.totalPrecip === 0 ? '-' : data.totalPrecip?.toFixed(1)}</TableCell>
                   <TableCell sx={{background: getWindColor(data.windSpeed, data.windGusts)}} align="center">{data.windSpeed} ({data.windGusts})</TableCell>
                   <TableCell sx={{background: getSunshineColor(data.sunshine)}} align="center">{data.sunshine}</TableCell>
                   {i === 0 || forecastData[i-1].place.name !== data.place.name ? (<TableCell align="center" style={i < forecastData.length - forecastDataRowSpan  ? {borderBottom: '1px solid #186eba' } : {}} rowSpan={forecastDataRowSpan}>
@@ -326,6 +333,14 @@ const WeatherDashboard = () => {
           </Table>
         </TableContainer>
       </Paper>
+
+      <Paper sx={{ p: 0, mb: 0 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{backgroundColor: '#eeeeee', p: '4px', pl: '10px', pr: '10px'}}>
+          <Typography fontSize="12px" color="#7e761b">&copy; 2025 SourceFlow AI</Typography>
+          <Typography fontSize="12px" color="#7e761b">Send feedback</Typography>
+        </Box>
+      </Paper>
+
       <Snackbar open={!!errorMessage} autoHideDuration={4000} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} onClose={() => setErrorMessage("")} message={errorMessage} />
     </Container>
   );
