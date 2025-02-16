@@ -199,8 +199,8 @@ const WeatherDashboard = () => {
           </IconButton>
         </Box>
         <Box maxHeight={160} overflow="auto" mt={searchPlaces.length > 0 ? 2 : 0}>
-          {searchPlaces.map((place) => (
-            <Box key={place.name} sx={{ p: 1, cursor: "pointer", "&:hover": { backgroundColor: "#f0f0f0" } }} onClick={() => handleAddPlace(place)}>
+          {searchPlaces.map((place, i) => (
+            <Box key={i} sx={{ p: 1, cursor: "pointer", "&:hover": { backgroundColor: "#f0f0f0" } }} onClick={() => handleAddPlace(place)}>
               {place.name}
             </Box>
           ))}
@@ -212,9 +212,9 @@ const WeatherDashboard = () => {
           <Table size="small" sx={{ width: "100%", tableLayout: "fixed" }}>
             <TableHead>
               <TableRow>
-                {forecastDays.map((day) => (
+                {forecastDays.map((day, i) => (
                   <TableCell
-                    key={day.key}
+                    key={i}
                     align="center"
                     onClick={() => handleSelectDay(day)}
                     sx={{
@@ -258,7 +258,7 @@ const WeatherDashboard = () => {
             </TableHead>
             <TableBody>
               {forecastData.map((data, i) => (
-                  <TableRow key={`${data.place.name}-${data.day.key}`} sx={i < forecastData.length - 1 && forecastData[i+1].place.name !== data.place.name ? { '& td, & th': { borderBottom: '1px solid #186eba', p: 0.5 } } : {'& td, & th': { borderBottom: 0, p: 0.5 } }}>
+                  <TableRow key={i} sx={i < forecastData.length - 1 && forecastData[i+1].place.name !== data.place.name ? { '& td, & th': { borderBottom: '1px solid #186eba', p: 0.5 } } : {'& td, & th': { borderBottom: 0, p: 0.5 } }}>
                     <TimeSelectionPopup
                       open={data.timePopupOpen}
                       onClose={(times) => {setForecastData((prev) => prev.map((d) => ({ ...d, timePopupOpen: false }))); setForecastDays((prev) => prev.map((d) => ({ ...d, startHour: d.key === data.day.key ? times.start : d.startHour, endHour: d.key === data.day.key ? times.end : d.endHour })))}}
