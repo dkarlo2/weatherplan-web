@@ -337,7 +337,6 @@ const WeatherDashboard = () => {
       <Paper sx={{ p: 0, mb: 0 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" sx={{backgroundColor: '#eeeeee', p: '4px', pl: '10px', pr: '10px'}}>
           <Typography fontSize="12px" color="#7e761b">&copy; 2025 SourceFlow AI</Typography>
-          <Typography fontSize="12px" color="#7e761b">Send feedback</Typography>
         </Box>
       </Paper>
 
