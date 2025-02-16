@@ -2,11 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Snackbar, Tooltip, Link } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
+import "leaflet/dist/leaflet.css";
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet-defaulticon-compatibility';
 import { fetchPlaces } from "./services/placesService";
 import { fetchGroupForecast } from "./services/forecastService";
 import TimeSelectionPopup from "./TimeSelectionPopup";
 import DailyForecastPopup from "./DailyForecastPopup";
 import { getWeatherIcon, getTemperatureGradient, getPrecipitationGradient, getSunshineColor, getWindColor } from "./weatherUtils";
+import { MapHandler, mapDefaultPosition, mapDefaultZoom } from "./mapUtils";
 
 const getDateGradient = (startHour, endHour) => {
   const startPercentage = (startHour / 24) * 100;
@@ -89,6 +94,8 @@ const loadForecastDays = () => {
   return days;
 };
 
+const maxPlaces = 10;
+
 const WeatherDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchPlaces, setSearchPlaces] = useState([]);
@@ -108,6 +115,7 @@ const WeatherDashboard = () => {
 
   useEffect(() => {
     if (!places.length || !forecastDays.some((day) => day.selected)) {
+      setForecastData([]);
       return;
     }
     // TODO use cache
@@ -153,6 +161,10 @@ const WeatherDashboard = () => {
   };
 
   const handleAddPlace = async (place) => {
+    if (places.length >= maxPlaces) {
+      setErrorMessage("Remove a location before adding a new one");
+      return;
+    }
     if (places.some((p) => p.name === place.name)) {
       setErrorMessage("This place is already added to the forecast");
       return;
@@ -332,6 +344,16 @@ const WeatherDashboard = () => {
             </TableBody>
           </Table>
         </TableContainer>
+      </Paper>
+
+      <Paper sx={{ p: 0, mb: 3, height: "500px" }}>
+        <MapContainer style={{width: "100%", height: "100%"}} center={mapDefaultPosition} zoom={mapDefaultZoom} scrollWheelZoom={false}>
+          <MapHandler places={places} />
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // TODO check e.g. http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}
+          />
+        </MapContainer>
       </Paper>
 
       <Paper sx={{ p: 0, mb: 0 }}>
