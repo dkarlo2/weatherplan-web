@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Snackbar, Tooltip } from "@mui/material";
+import { Container, Typography, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Snackbar, Tooltip, Link } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { fetchPlaces } from "./services/placesService";
@@ -337,6 +337,7 @@ const WeatherDashboard = () => {
       <Paper sx={{ p: 0, mb: 0 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" sx={{backgroundColor: '#eeeeee', p: '4px', pl: '10px', pr: '10px'}}>
           <Typography fontSize="12px" color="#7e761b">&copy; 2025 SourceFlow AI</Typography>
+          <Link fontSize="12px" color="#7e761b" href="https://open-meteo.com/" target="_blank" rel="noopener">Weather data by Open-Meteo.com</Link>
         </Box>
       </Paper>
 
